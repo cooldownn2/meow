@@ -1,7 +1,13 @@
 local configs = {}
+local HttpService = game:GetService("HttpService")
+
+-- Create config folder if it doesn't exist
+if not isfolder("MeowConfigs") then
+    makefolder("MeowConfigs")
+end
 
 function configs:saveConfig(name, flags, options)
-    if not name then return end
+    if not name then return false end
     local configPath = "MeowConfigs/" .. name .. ".cfg"
     local data = {}
     
@@ -17,18 +23,18 @@ function configs:saveConfig(name, flags, options)
         end
     end
     
-    writefile(configPath, game:GetService("HttpService"):JSONEncode(data))
+    writefile(configPath, HttpService:JSONEncode(data))
     return true
 end
 
 function configs:loadConfig(name, flags, options)
-    if not name then return end
+    if not name then return false end
     local configPath = "MeowConfigs/" .. name .. ".cfg"
     
     if not isfile(configPath) then return false end
     
     local success, data = pcall(function()
-        return game:GetService("HttpService"):JSONDecode(readfile(configPath))
+        return HttpService:JSONDecode(readfile(configPath))
     end)
     
     if not success or not data then return false end
