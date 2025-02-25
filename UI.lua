@@ -20,6 +20,10 @@ menu.bg.pre.Text = 'Seere<font color="#4517ff">.vip</font> - fiji was here!!!!'
 
 local library = {cheatname = "";ext = "";gamename = "";colorpicking = false;tabbuttons = {};tabs = {};options = {};flags = {};scrolling = false;notifyText = Drawing.new("Text");playing = false;multiZindex = 200;toInvis = {};libColor = Color3.fromRGB(69, 23, 255);disabledcolor = Color3.fromRGB(233, 0, 0);blacklisted = {Enum.KeyCode.W,Enum.KeyCode.A,Enum.KeyCode.S,Enum.KeyCode.D,Enum.UserInputType.MouseMovement}}
 
+-- Add this near the top of your file after the library table is created
+local configs = loadstring(readfile("meow/configs.lua"))()
+configs.init(library)
+
 function draggable(a)local b=inputService;local c;local d;local e;local f;local function g(h)if not library.colorpicking then local i=h.Position-e;a.Position=UDim2.new(f.X.Scale,f.X.Offset+i.X,f.Y.Scale,f.Y.Offset+i.Y)end end;a.InputBegan:Connect(function(h)if h.UserInputType==Enum.UserInputType.MouseButton1 or h.UserInputType==Enum.UserInputType.Touch then c=true;e=h.Position;f=a.Position;h.Changed:Connect(function()if h.UserInputState==Enum.UserInputState.End then c=false end end)end end)a.InputChanged:Connect(function(h)if h.UserInputType==Enum.UserInputType.MouseMovement or h.UserInputType==Enum.UserInputType.Touch then d=h end end)b.InputChanged:Connect(function(h)if h==d and c then g(h)end end)end
 draggable(menu.bg)
 
@@ -1736,14 +1740,16 @@ local configsettings = configTab:createGroup('left', 'Config Settings')
 local uisettings = configTab:createGroup('right', 'UI Settings')
 local othersettings = configTab:createGroup('right', 'Other')
 
-createconfigs:addTextbox({text = "Name",flag = "config_name"})
-createconfigs:addButton({text = "Load",callback = library.loadConfig})
+-- In your config tab setup, ensure the proper flags exist:
+createconfigs:addTextbox({text = "Name", flag = "config_name"})
+createconfigs:addButton({text = "Create", callback = function() library:createConfig() end})
 
-configsettings:addConfigbox({flag = 'test',values = {}})
-configsettings:addButton({text = "Load",callback = library.loadConfig})
-configsettings:addButton({text = "Update",callback = library.saveConfig})
-configsettings:addButton({text = "Delete",callback = library.deleteConfig})
-configsettings:addButton({text = "Refresh",callback = library.refreshConfigs})
+configsettings:addConfigbox({flag = "selected_config", values = configs.getConfigList()})
+configsettings:addButton({text = "Load", callback = function() library:loadConfig() end})
+configsettings:addButton({text = "Save", callback = function() library:saveConfig() end})
+configsettings:addButton({text = "Delete", callback = function() library:deleteConfig() end})
+configsettings:addButton({text = "Refresh", callback = function() library:refreshConfigs() end})
+
 uisettings:addToggle({text = "Show Game Name",flag = "show game name"})
 uisettings:addTextbox({text = "Menu Title",flag = "menutitle"})
 uisettings:addTextbox({text = "Domain",flag = "menudomain"})
