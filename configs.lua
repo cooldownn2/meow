@@ -7,32 +7,24 @@ end
 
 function configs.getConfigList()
     local files = {}
-    if isfolder("MeowConfigs") then
-        for _, v in pairs(listfiles("MeowConfigs")) do
-            local name = string.match(v, "[^\\]+$") -- Get filename
-            name = string.gsub(name, ".cfg$", "") -- Remove .cfg extension
-            table.insert(files, name)
+    for _, file in ipairs(listfiles("MeowConfigs")) do
+        local fileName = string.match(file, "[^\\]+$")
+        if string.sub(fileName, -4) == ".cfg" then
+            table.insert(files, string.sub(fileName, 1, -5))
         end
     end
     return files
 end
 
 function configs.init(library)
-    -- Initialize config system
     library.createConfig = function()
         local name = library.flags["config_name"]
-        if not name or name == "" then 
-            library:notify("Please enter a config name")
-            return
+        if not name or name == "" then return library:notify("Please enter a config name") end
+        
+        if isfile("MeowConfigs/" .. name .. ".cfg") then 
+            return library:notify("Config already exists!") 
         end
         
-        -- Check if config already exists
-        if isfile("MeowConfigs/" .. name .. ".cfg") then
-            library:notify("Config already exists!")
-            return
-        end
-
-        -- Save config
         local data = {}
         for flag, value in pairs(library.flags) do
             if library.options[flag] and not library.options[flag].skipflag then
@@ -48,11 +40,7 @@ function configs.init(library)
         
         writefile("MeowConfigs/" .. name .. ".cfg", game:GetService("HttpService"):JSONEncode(data))
         library:notify("Created config: " .. name)
-        
-        -- Refresh config list
-        if library.options["selected_config"] then
-            library.options["selected_config"].refresh(configs.getConfigList())
-        end
+        library:refreshConfigs()
     end
 
     library.saveConfig = function()
@@ -138,6 +126,8 @@ function configs.init(library)
             library.options["selected_config"].refresh(configs.getConfigList())
         end
     end
+
+    return library
 end
 
 return configs

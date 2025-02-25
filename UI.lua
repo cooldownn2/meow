@@ -1285,7 +1285,7 @@ function library:addTab(name)
         
         
             library.flags[args.flag] = ""
-            library.options[args.flag] = {type = "cfg",changeState = updateValue,values = args.values,refresh = refresh,skipflag = args.skipflag,oldargs = args}
+            library.options[args.flag] = {type = "cfg",changeState = updateValue,values = tbl,refresh = refresh,skipflag = args.skipflag,oldargs = args}
         
             refresh(args.values)
             updateValue(args.value or not args.multiselect and args.values[1] or "abcdefghijklmnopqrstuwvxyz")
