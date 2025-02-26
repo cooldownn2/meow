@@ -23,9 +23,7 @@ local function loadFile(name, url)
     
     if success then
         log(name .. " content loaded")
-        local success2, result = pcall(function() 
-            return loadstring(content)()
-        end)
+        local success2, result = pcall(loadstring(content))
         
         if success2 then
             log(name .. " executed successfully")
@@ -40,30 +38,25 @@ local function loadFile(name, url)
 end
 
 function loader:init()
-    log("Initializing loader...")
-    
-    -- Load components in order
-    self.utils = loadFile("Utils", urls.utils)
-    if not self.utils then return end
-    
+    -- Load UI first since it contains core functionality
     self.ui = loadFile("UI", urls.ui)
     if not self.ui then return end
-    
-    self.config = loadFile("Config", urls.config)
-    if not self.config then return end
-    
-    self.tabs = loadFile("Tabs", urls.tabs)
-    if not self.tabs then return end
 
-    -- Initialize UI with dependencies
-    if self.ui.init then
-        self.ui:init(self.config, self.tabs)
-        log("UI initialized")
-    else
-        log("UI init function not found")
+    -- Load other modules
+    self.utils = loadFile("Utils", urls.utils)
+    self.config = loadFile("Config", urls.config)
+    self.tabs = loadFile("Tabs", urls.tabs)
+
+    -- Initialize the UI library first
+    if type(self.ui) == "table" then
+        self.ui:init()
     end
-    
-    log("Loader finished")
+
+    -- Initialize other modules after UI is ready
+    if self.config then self.config:init(self.ui) end
+    if self.tabs then self.tabs:init(self.ui) end
+
+    return self.ui
 end
 
 return loader
