@@ -16,47 +16,37 @@ if not success or not library then
     return
 end
 
--- Verify library has addTab function
-if not library.addTab then
-    warn("Library missing addTab function!")
-    return
-end
+print("Creating tabs...")
 
--- Create tabs with verification
+-- Create tabs with debug
 local tabs = {
-    aimbotTab = {name = "Legit"},
-    visualsTab = {name = "Ragebot"},
-    miscTab = {name = "Visuals"},
-    skinTab = {name = "Skins"},
-    luaTab = {name = "Luas"},
-    configTab = {name = "Settings"}
+    Legit = library:addTab("Legit"),
+    Ragebot = library:addTab("Ragebot"),
+    Visuals = library:addTab("Visuals"),
+    Skins = library:addTab("Skins"),
+    Misc = library:addTab("Misc"),
+    Luas = library:addTab("Luas"),
+    Settings = library:addTab("Settings")
 }
 
--- Create tabs and store references
-local createdTabs = {}
-for id, tab in pairs(tabs) do
-    local success, newTab = pcall(function()
-        return library:addTab(tab.name)
-    end)
-    
-    if success and newTab then
-        createdTabs[id] = newTab
-    else
-        warn("Failed to create tab:", tab.name)
+-- Verify tabs were created
+for name, tab in pairs(tabs) do
+    if not tab then
+        warn("Failed to create tab:", name)
     end
 end
 
 -- Only continue if we have our config tab
-if not createdTabs.configTab then
-    warn("Failed to create config tab!")
+if not tabs.Settings then
+    warn("Failed to create Settings tab!")
     return
 end
 
--- Create groups using our stored references
-local createconfigs = createdTabs.configTab:createGroup('left', 'Create Configs')
-local configsettings = createdTabs.configTab:createGroup('left', 'Config Settings')
-local uisettings = createdTabs.configTab:createGroup('center', 'UI Settings')
-local othersettings = createdTabs.configTab:createGroup('right', 'Other')
+-- Create groups
+local createconfigs = tabs.Settings:createGroup('left', 'Create Configs')
+local configsettings = tabs.Settings:createGroup('left', 'Config Settings')
+local uisettings = tabs.Settings:createGroup('center', 'UI Settings')
+local othersettings = tabs.Settings:createGroup('right', 'Other')
 
 -- Now add elements with proper function binding
 createconfigs:addTextbox({text = "Name", flag = "config_name"})

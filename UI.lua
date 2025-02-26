@@ -94,25 +94,41 @@ function library:notify(text)
 end
 
 function library:addTab(name)
+    -- Debug print to verify tab creation
+    print("Creating tab:", name)
+    
     local newTab = tabholder.tab:Clone()
     local newButton = tabviewer.button:Clone()
 
-    table.insert(library.tabs,newTab)
+    -- Set tab properties
+    newTab.Name = name
     newTab.Parent = tabholder
-    -- Set first tab to visible by default
-    newTab.Visible = #library.tabs == 1 
+    newTab.Visible = false -- Start invisible
+    newTab.left.Visible = true -- Make sure containers are visible
+    newTab.right.Visible = true
+    newTab.center.Visible = true
+    
+    table.insert(library.tabs, newTab)
 
-    table.insert(library.tabbuttons,newButton)
+    -- Set button properties
+    newButton.Name = name.."_button"
     newButton.Parent = tabviewer
     newButton.Modal = true
     newButton.Visible = true
     newButton.text.Text = name
     
-    -- Set first button as selected by default
+    table.insert(library.tabbuttons, newButton)
+
+    -- Make first tab visible by default
     if #library.tabs == 1 then
+        newTab.Visible = true
         newButton.element.Visible = true
-        library:Tween(newButton.element, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.000})
+        library:Tween(newButton.element, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0})
         newButton.text.TextColor3 = Color3.fromRGB(244, 244, 244)
+    else
+        newButton.element.Visible = false
+        newButton.element.BackgroundTransparency = 1
+        newButton.text.TextColor3 = Color3.fromRGB(144, 144, 144)
     end
 
     newButton.MouseButton1Click:Connect(function()
