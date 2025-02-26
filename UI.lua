@@ -145,10 +145,14 @@ local PuppyModule = {
     Instance = {}
 }
 
-local UI = require(game:GetService("ReplicatedStorage"):WaitForChild("UI"))
+local UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/lib.lua"))()
 
 local success, errorMsg = pcall(function()
-    local Window = UI.new({title = "SPICE", accent = Color3.fromRGB(244, 95, 115), size = UDim2.new(0, 500, 0, 600)})
+    local Window = UI:new({
+        name = "SPICE",
+        textsize = 13,
+        color = Color3.fromRGB(244, 95, 115)
+    })
     local AimingTab = Window:page({name = "Legit"})
     local RageTab = Window:page({name = "Rage"})
     local VisualTab = Window:page({name = "Visauls"})
