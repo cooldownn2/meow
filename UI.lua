@@ -2,8 +2,8 @@ getgenv().SilentKeyy = 'q'
 getgenv().PredictionAmmount = 0.137
 
 --// Main Libarys \\--
-local libary = loadstring(game:HttpGet("https://raw.githubusercontent.com/imagoodpersond/puppyware/main/lib"))()
-local NotifyLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/imagoodpersond/puppyware/main/notify"))()
+local libary = loadstring(game:HttpGet("https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/lib.lua"))()
+local NotifyLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/notify.lua"))()
 local Notify = NotifyLibrary.Notify
 --// Service Handler \\--
 local GetService = setmetatable({}, {
