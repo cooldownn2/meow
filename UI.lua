@@ -145,44 +145,62 @@ local PuppyModule = {
     Instance = {}
 }
 
-local UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/lib.lua"))()
+local UI = {}
+local lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/lib.lua"))()
+local NotifyLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/notify.lua"))()
+
+-- Load required libraries safely
+local function loadLibrary(url)
+    local success, result = pcall(function()
+        return loadstring(game:HttpGet(url))()
+    end)
+    if not success then
+        warn("[SPICE ERROR] Failed to load library: " .. tostring(result))
+        return nil
+    end
+    return result
+end
+
+-- Initialize core libraries
+local UI = {}
+local lib = loadLibrary("https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/lib.lua")
+local NotifyLib = loadLibrary("https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/notify.lua")
+
+if not lib then
+    warn("[SPICE ERROR] Failed to load main library")
+    return
+end
+
+-- Create window function
+function UI.new(config)
+    if not lib then return end
+    
+    local success, window = pcall(function()
+        return lib:CreateWindow({
+            Name = config.name or "SPICE",
+            LoadingTitle = config.title or "SPICE Interface Suite",
+            LoadingSubtitle = config.subtitle or "by cooldown",
+            ConfigurationSaving = {
+                Enabled = true,
+                FolderName = "SPICE",
+                FileName = "Config"
+            }
+        })
+    end)
+
+    if not success then
+        warn("[SPICE ERROR] Failed to create window: " .. tostring(window))
+        return nil
+    end
+
+    return window
+end
+
+return UI
 
 local success, errorMsg = pcall(function()
     local Window = UI:new({
         name = "SPICE",
-        textsize = 13,
-        color = Color3.fromRGB(244, 95, 115)
-    })
-    local AimingTab = Window:page({name = "Legit"})
-    local RageTab = Window:page({name = "Rage"})
-    local VisualTab = Window:page({name = "Visauls"})
-    local MiscTab = Window:page({name = "Misc"})
-
-    local SAimSection = AimingTab:section({name = "Silent Aim", side = "left",size = 320})
-
-    local AAMainSection = RageTab:section({name = "Main", side = "left", size = 200})
-    local AASettings = RageTab:section({name = "Settings", side = "right", size = 200})
-
-    local VisualMainSection = VisualTab:section({name = "Main",side = "left", size = 200})
-
-    local MiscMoveSettings = MiscTab:section({name = "Movement Cheats",side = "left", size = 200})
-    local MiscToolSettings = MiscTab:section({name = "Tool Cheats",side = "left", size = 50})
-    local MiscCharSettings = MiscTab:section({name = "Character Cheats",side = "left", size = 50})
-    local MiscNorSettings = MiscTab:section({name = "Normal Cheats",side = "left", size = 100})
-
-    local ConfigSection = MiscTab:section({name = "Config",side = "right", size = 250})
-    local ConfigLoader = ConfigSection:configloader({folder = "coolwhat"})
-
-    SAimSection:toggle({name = "Silent Aim Enabled", def = false, callback = function(Boolean)
-        SafeCallback(function()
-            PuppySettings.SilentAim.Enabled = Boole    SAimSection:toggle({name = "Use FOV", def = false, callback = function(Boolean)
-        PuppySettings.SilentAim.UseFOV = Boolean
-    end})
-
-    SAimSection:toggle({name = "Show FOV", def = false, callback = function(Boolean)
-        PuppySettings.SilentAim.ShowFOV = Boolean
-    end})
-
     SAimSection:colorpicker({name = "Dot Color", cpname = "", def = Color3.new(0.603921, 0.011764, 1), callback = function(color)
         PuppySettings.SilentAim.DOTColor = color
     end})
