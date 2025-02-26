@@ -23,39 +23,49 @@ local function loadFile(name, url)
     
     if success then
         log(name .. " content loaded")
-        local func = loadstring(content)
-        if func then
-            local success2, result = pcall(func)
-            if success2 then
-                log(name .. " executed successfully")
-                return result
-            else
-                log(name .. " execution failed: " .. tostring(result))
-            end
-        end
-    else
-        log(name .. " failed to load: " .. tostring(content))
+        -- Return the content instead of executing it
+        return content
     end
+    log(name .. " failed to load: " .. tostring(content))
     return nil
 end
 
 function loader:init()
-    -- Load modules in order
-    self.utils = loadFile("Utils", urls.utils)
-    self.config = loadFile("Config", urls.config)
-    self.tabs = loadFile("Tabs", urls.tabs)
-    
-    -- Load and initialize UI last since it depends on other modules
-    local ui = loadFile("UI", urls.ui)
-    if ui then
-        _G.Library = ui -- Store UI library globally to persist
-        
-        -- Initialize modules with UI reference
-        if self.config then self.config:init(ui) end
-        if self.tabs then self.tabs:init(ui) end
-        
-        return ui
+    -- First load all file contents
+    local files = {}
+    for name, url in pairs(urls) do
+        files[name] = loadFile(name, url)
+        if not files[name] then
+            log("Failed to load " .. name)
+            return
+        end
     end
+    
+    -- Execute in specific order
+    local success, utils = pcall(function() return loadstring(files.utils)() end)
+    if not success then return log("Utils execution failed: " .. tostring(utils)) end
+    
+    local success, ui = pcall(function() return loadstring(files.ui)() end)
+    if not success then return log("UI execution failed: " .. tostring(ui)) end
+    
+    local success, config = pcall(function() return loadstring(files.config)() end)
+    if not success then return log("Config execution failed: " .. tostring(config)) end
+    
+    local success, tabs = pcall(function() return loadstring(files.tabs)() end)
+    if not success then return log("Tabs execution failed: " .. tostring(tabs)) end
+    
+    -- Store references
+    _G.Library = ui
+    ui.config = config
+    ui.tabs = tabs
+    ui.utils = utils
+    
+    -- Initialize in correct order
+    if config then config:init(ui) end
+    if tabs then tabs:init(ui) end
+    if ui.init then ui:init() end
+    
+    return ui
 end
 
 return loader
