@@ -2,10 +2,10 @@ local loader = {}
 
 -- GitHub raw URLs for each component
 local urls = {
-    ui = "https://raw.githubusercontent.com/yourrepo/UI.lua",
-    config = "https://raw.githubusercontent.com/yourrepo/config.lua",
-    tabs = "https://raw.githubusercontent.com/yourrepo/tabs.lua",
-    utils = "https://raw.githubusercontent.com/yourrepo/utils.lua"
+    ui = "https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/UI.lua",
+    config = "https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/config.lua",
+    tabs = "https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/tabs.lua",
+    utils = "https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/utils.lua"
 }
 
 -- Load a file from GitHub
