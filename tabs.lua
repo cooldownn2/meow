@@ -1,23 +1,25 @@
 local tabs = {}
 
 function tabs:init(library)
-    if not library then return end
-    
     self.library = library
     self.tabs = {}
     
-    -- Create default tabs
-    self:createTab("Legit")
-    self:createTab("Ragebot")
-    self:createTab("Visuals")
-    self:createTab("Misc")
-    self:createTab("Settings")
+    -- Let UI handle tab creation
+    if library and library.addTab then
+        -- Create default tabs
+        local defaultTabs = {"Legit", "Ragebot", "Visuals", "Misc", "Settings"}
+        for _, name in ipairs(defaultTabs) do
+            self:createTab(name)
+        end
+    end
 end
 
 function tabs:createTab(name)
     if not self.library then return end
     local tab = self.library:addTab(name)
-    self.tabs[name] = tab
+    if tab then
+        self.tabs[name] = tab
+    end
     return tab
 end
 

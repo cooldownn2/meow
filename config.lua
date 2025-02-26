@@ -2,9 +2,27 @@ local config = {}
 
 function config:init(library)
     self.library = library
-    -- Create config folder if it doesn't exist
+    
+    -- Create config folder
     if not isfolder("OsirisCFGS") then
         makefolder("OsirisCFGS")
+    end
+    
+    -- Add config methods to library
+    library.createConfig = function(self)
+        return config:create(self.flags["config_name"], self.flags)
+    end
+    
+    library.loadConfig = function(self)
+        return config:load(self.flags["selected_config"])
+    end
+    
+    library.saveConfig = function(self)
+        return config:save(self.flags["selected_config"], self.flags)
+    end
+    
+    library.refreshConfigs = function(self)
+        return config:refresh()
     end
 end
 
