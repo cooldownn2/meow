@@ -1,4 +1,3 @@
-
 local inputService   = game:GetService("UserInputService")
 local runService     = game:GetService("RunService")
 local tweenService   = game:GetService("TweenService")
@@ -7,9 +6,22 @@ local localPlayer    = players.LocalPlayer
 local mouse          = localPlayer:GetMouse()
 
 local menu           = game:GetObjects("rbxassetid://12705540680")[1]
-syn.protect_gui(menu)
+
+-- Handle different exploit environments
+local function protectGui(gui)
+    if syn then
+        syn.protect_gui(gui)
+    elseif protect_gui then
+        protect_gui(gui)
+    elseif gethui then
+        gui.Parent = gethui()
+        return
+    end
+    gui.Parent = game:GetService("CoreGui")
+end
+
+protectGui(menu)
 menu.bg.Position     = UDim2.new(0.5,-menu.bg.Size.X.Offset/2,0.5,-menu.bg.Size.Y.Offset/2)
-menu.Parent          = game:GetService("CoreGui")
 menu.bg.pre.Text = 'Seere<font color="#4517ff">.vip</font> - fiji was here!!!!'
 
 local library = {cheatname = "";ext = "";gamename = "";colorpicking = false;tabbuttons = {};tabs = {};options = {};flags = {};scrolling = false;notifyText = Drawing.new("Text");playing = false;multiZindex = 200;toInvis = {};libColor = Color3.fromRGB(69, 23, 255);disabledcolor = Color3.fromRGB(233, 0, 0);blacklisted = {Enum.KeyCode.W,Enum.KeyCode.A,Enum.KeyCode.S,Enum.KeyCode.D,Enum.UserInputType.MouseMovement}}
