@@ -5,7 +5,6 @@ local success, library = pcall(function()
     local loader = loadstring(loaderSource)()
     assert(loader, "Failed to initialize loader")
     
-    -- Changed from loader.Init() to loader:Init()
     local lib = loader:Init()
     assert(lib, "Failed to initialize library")
     
@@ -17,30 +16,13 @@ if not success then
     return
 end
 
-local library = result
-
--- First show error if library isn't loaded
-if not library then
-    warn("Library failed to initialize!")
-    return
-end
-
--- Create tabs with error handling
-local function addTab(name)
-    if not library.addTab then
-        warn("Library missing addTab function!")
-        return
-    end
-    return library:addTab(name)
-end
-
-local aimbotTab = addTab("Legit")
-local visualsTab = addTab("Ragebot") 
-local miscTab = addTab("Visuals")
-local skinTab = addTab("Skins")
-local miscTab = addTab("Misc")
-local luaTab = addTab("Luas")
-local configTab = addTab("Settings")
+-- Create tabs directly without the addTab wrapper function
+local aimbotTab = library:addTab("Legit")
+local visualsTab = library:addTab("Ragebot") 
+local miscTab = library:addTab("Visuals")
+local skinTab = library:addTab("Skins")
+local luaTab = library:addTab("Luas")
+local configTab = library:addTab("Settings")
 
 -- Don't continue if config tab failed to create
 if not configTab then
