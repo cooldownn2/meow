@@ -32,7 +32,11 @@ draggable(menu.bg)
 local tabholder = menu.bg.bg.bg.bg.main.group
 local tabviewer = menu.bg.bg.bg.bg.tabbuttons
 
-
+-- Add this debug code right after the above
+print("TabHolder exists:", tabholder ~= nil)
+print("TabViewer exists:", tabviewer ~= nil)
+print("TabHolder tab template exists:", tabholder:FindFirstChild("tab") ~= nil)
+print("TabViewer button template exists:", tabviewer:FindFirstChild("button") ~= nil)
 
 inputService.InputEnded:Connect(function(key)
     if key.KeyCode == Enum.KeyCode.RightShift then
@@ -94,19 +98,50 @@ function library:notify(text)
 end
 
 function library:addTab(name)
-    -- Debug print to verify tab creation
     print("Creating tab:", name)
     
+    if not tabholder:FindFirstChild("tab") then
+        warn("Missing tab template!")
+        return
+    end
+
+    if not tabviewer:FindFirstChild("button") then
+        warn("Missing button template!")
+        return
+    end
+
     local newTab = tabholder.tab:Clone()
     local newButton = tabviewer.button:Clone()
+
+    print("Tab created:", newTab ~= nil)
+    print("Button created:", newButton ~= nil)
 
     -- Set tab properties
     newTab.Name = name
     newTab.Parent = tabholder
-    newTab.Visible = false -- Start invisible
-    newTab.left.Visible = true -- Make sure containers are visible
-    newTab.right.Visible = true
-    newTab.center.Visible = true
+    newTab.Visible = false
+
+    -- Make sure containers exist and are visible
+    if newTab:FindFirstChild("left") then
+        newTab.left.Visible = true
+        print("Left container visible")
+    else
+        warn("Missing left container!")
+    end
+    
+    if newTab:FindFirstChild("right") then
+        newTab.right.Visible = true
+        print("Right container visible")
+    else
+        warn("Missing right container!")
+    end
+    
+    if newTab:FindFirstChild("center") then
+        newTab.center.Visible = true
+        print("Center container visible")
+    else
+        warn("Missing center container!")
+    end
     
     table.insert(library.tabs, newTab)
 
@@ -883,41 +918,6 @@ function library:addTab(name)
 
             div.Name = "div"
             div.Parent = grouper
-            div.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            div.BackgroundTransparency = 1.000
-            div.BorderSizePixel = 0
-            div.Position = UDim2.new(0, 0, 0.743662, 0)
-            div.Size = UDim2.new(0, 202, 0, 10)
-            
-            bg.Name = "bg"
-            bg.Parent = div
-            bg.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-            bg.BorderColor3 = Color3.fromRGB(0, 0, 0)
-            bg.BorderSizePixel = 2
-            bg.Position = UDim2.new(0.02, 0, 0, 4)
-            bg.Size = UDim2.new(0, 191, 0, 1)
-            
-            main.Name = "main"
-            main.Parent = bg
-            main.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-            main.BorderColor3 = Color3.fromRGB(60, 60, 60)
-            main.Size = UDim2.new(0, 191, 0, 1)
-        end
-        function group:addList(args)
-            if not args.flag or not args.values then return warn("⚠️ incorrect arguments ⚠️") end
-            groupbox.Size += UDim2.new(0, 0, 0, 35)
-            
---args.multiselect and "..." or ""
-            library.multiZindex -= 1
-
-            local list = Instance.new("Frame")
-            local bg = Instance.new("Frame")
-            local main = Instance.new("ScrollingFrame")
-            local button = Instance.new("TextButton")
-            local dumbtriangle = Instance.new("ImageLabel")
-            local valuetext = Instance.new("TextLabel")
-            local gradient = Instance.new("UIGradient")
-            local text = Instance.new("TextLabel")
 
             local frame = Instance.new("Frame")
             local holder = Instance.new("Frame")
