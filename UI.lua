@@ -27,7 +27,7 @@ local tweenService = GetService.TweenService
 local ReplicatedStorage = GetService.ReplicatedStorage
 local http = GetService.HttpService
 local lighting = GetService.Lighting
-makefolder("puppywarereborn")
+makefolder("coolwhat")
 
 --// Start \\--
 local PuppySettings = {
@@ -145,7 +145,7 @@ local PuppyModule = {
     Instance = {}
 }
 
-local Window = libary:new({name = "Puppyware Reborn", accent = Color3.fromRGB(244, 95, 115), textsize = 13})
+local Window = libary:new({name = "SPICE", accent = Color3.fromRGB(244, 95, 115), textsize = 13})
 local AimingTab = Window:page({name = "Legit"})
 local RageTab = Window:page({name = "Rage"})
 local VisualTab = Window:page({name = "Visauls"})
@@ -164,7 +164,7 @@ local MiscCharSettings = MiscTab:section({name = "Character Cheats",side = "left
 local MiscNorSettings = MiscTab:section({name = "Normal Cheats",side = "left", size = 100})
 
 local ConfigSection = MiscTab:section({name = "Config",side = "right", size = 250})
-local ConfigLoader = ConfigSection:configloader({folder = "puppywarereborn"})
+local ConfigLoader = ConfigSection:configloader({folder = "coolwhat"})
 
 SAimSection:toggle({name = "Silent Aim Enabled", def = false, callback = function(Boolean)
     PuppySettings.SilentAim.Enabled = Boolean
@@ -930,7 +930,7 @@ Mouse.KeyDown:connect(function(key)
             end
             if PuppySettings.SilentAim.NotificationMode and Plr ~= game.Players.LocalPlayer then
                 Notify({
-                    Title = "Puppyware",
+                    Title = "spice",
                     Description = "Locked Onto: "..Plr.DisplayName,
                     Duration = 3
                 })
@@ -941,7 +941,7 @@ Mouse.KeyDown:connect(function(key)
    Plr = game.Players.LocalPlayer
             if PuppySettings.SilentAim.NotificationMode then
                 Notify({
-                    Title = "Puppyware",
+                    Title = "spice",
                     Description = "Unlocked",
                     Duration = 3
                 })
