@@ -32,11 +32,7 @@ draggable(menu.bg)
 local tabholder = menu.bg.bg.bg.bg.main.group
 local tabviewer = menu.bg.bg.bg.bg.tabbuttons
 
--- Add this debug code right after the above
-print("TabHolder exists:", tabholder ~= nil)
-print("TabViewer exists:", tabviewer ~= nil)
-print("TabHolder tab template exists:", tabholder:FindFirstChild("tab") ~= nil)
-print("TabViewer button template exists:", tabviewer:FindFirstChild("button") ~= nil)
+
 
 inputService.InputEnded:Connect(function(key)
     if key.KeyCode == Enum.KeyCode.RightShift then
@@ -98,74 +94,18 @@ function library:notify(text)
 end
 
 function library:addTab(name)
-    print("Creating tab:", name)
-    
-    if not tabholder:FindFirstChild("tab") then
-        warn("Missing tab template!")
-        return
-    end
-
-    if not tabviewer:FindFirstChild("button") then
-        warn("Missing button template!")
-        return
-    end
-
     local newTab = tabholder.tab:Clone()
     local newButton = tabviewer.button:Clone()
 
-    print("Tab created:", newTab ~= nil)
-    print("Button created:", newButton ~= nil)
-
-    -- Set tab properties
-    newTab.Name = name
+    table.insert(library.tabs,newTab)
     newTab.Parent = tabholder
     newTab.Visible = false
 
-    -- Make sure containers exist and are visible
-    if newTab:FindFirstChild("left") then
-        newTab.left.Visible = true
-        print("Left container visible")
-    else
-        warn("Missing left container!")
-    end
-    
-    if newTab:FindFirstChild("right") then
-        newTab.right.Visible = true
-        print("Right container visible")
-    else
-        warn("Missing right container!")
-    end
-    
-    if newTab:FindFirstChild("center") then
-        newTab.center.Visible = true
-        print("Center container visible")
-    else
-        warn("Missing center container!")
-    end
-    
-    table.insert(library.tabs, newTab)
-
-    -- Set button properties
-    newButton.Name = name.."_button"
+    table.insert(library.tabbuttons,newButton)
     newButton.Parent = tabviewer
     newButton.Modal = true
     newButton.Visible = true
     newButton.text.Text = name
-    
-    table.insert(library.tabbuttons, newButton)
-
-    -- Make first tab visible by default
-    if #library.tabs == 1 then
-        newTab.Visible = true
-        newButton.element.Visible = true
-        library:Tween(newButton.element, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0})
-        newButton.text.TextColor3 = Color3.fromRGB(244, 244, 244)
-    else
-        newButton.element.Visible = false
-        newButton.element.BackgroundTransparency = 1
-        newButton.text.TextColor3 = Color3.fromRGB(144, 144, 144)
-    end
-
     newButton.MouseButton1Click:Connect(function()
         for i,v in next, library.tabs do
             v.Visible = v == newTab
@@ -918,6 +858,41 @@ function library:addTab(name)
 
             div.Name = "div"
             div.Parent = grouper
+            div.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            div.BackgroundTransparency = 1.000
+            div.BorderSizePixel = 0
+            div.Position = UDim2.new(0, 0, 0.743662, 0)
+            div.Size = UDim2.new(0, 202, 0, 10)
+            
+            bg.Name = "bg"
+            bg.Parent = div
+            bg.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+            bg.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            bg.BorderSizePixel = 2
+            bg.Position = UDim2.new(0.02, 0, 0, 4)
+            bg.Size = UDim2.new(0, 191, 0, 1)
+            
+            main.Name = "main"
+            main.Parent = bg
+            main.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+            main.BorderColor3 = Color3.fromRGB(60, 60, 60)
+            main.Size = UDim2.new(0, 191, 0, 1)
+        end
+        function group:addList(args)
+            if not args.flag or not args.values then return warn("⚠️ incorrect arguments ⚠️") end
+            groupbox.Size += UDim2.new(0, 0, 0, 35)
+            
+--args.multiselect and "..." or ""
+            library.multiZindex -= 1
+
+            local list = Instance.new("Frame")
+            local bg = Instance.new("Frame")
+            local main = Instance.new("ScrollingFrame")
+            local button = Instance.new("TextButton")
+            local dumbtriangle = Instance.new("ImageLabel")
+            local valuetext = Instance.new("TextLabel")
+            local gradient = Instance.new("UIGradient")
+            local text = Instance.new("TextLabel")
 
             local frame = Instance.new("Frame")
             local holder = Instance.new("Frame")
@@ -1654,3 +1629,125 @@ function contains(list, x)
 	end
 	return false
 end
+
+function library:createConfig()
+    local name = library.flags["config_name"]
+    if contains(library.options["selected_config"].values, name) then return library:notify(name..".cfg already exists!") end
+    if name == "" then return library:notify("Put a name goofy") end
+    local jig = {}
+    for i,v in next, library.flags do
+        if library.options[i].skipflag then continue end
+        if typeof(v) == "Color3" then
+            jig[i] = {v.R,v.G,v.B}
+        elseif typeof(v) == "EnumItem" then
+            jig[i] = {string.split(tostring(v),".")[2],string.split(tostring(v),".")[3]}
+        else
+            jig[i] = v
+        end
+    end
+    writefile("OsirisCFGS/"..name..".cfg",game:GetService("HttpService"):JSONEncode(jig))
+    library:notify("Succesfully created config "..name..".cfg!")
+    library:refreshConfigs()
+end
+
+function library:saveConfig()
+    local name = library.flags["selected_config"]
+    local jig = {}
+    for i,v in next, library.flags do
+        if library.options[i].skipflag then continue end
+        if typeof(v) == "Color3" then
+            jig[i] = {v.R,v.G,v.B}
+        elseif typeof(v) == "EnumItem" then
+            jig[i] = {string.split(tostring(v),".")[2],string.split(tostring(v),".")[3]}
+        else
+            jig[i] = v
+        end
+    end
+    writefile("OsirisCFGS/"..name..".cfg",game:GetService("HttpService"):JSONEncode(jig))
+    library:notify("Succesfully updated config "..name..".cfg!")
+    library:refreshConfigs()
+end
+
+function library:loadConfig()
+    local name = library.flags["selected_config"]
+    if not isfile("OsirisCFGS/"..name..".cfg") then
+        library:notify("Config file not found!")
+        return
+    end
+    local config = game:GetService("HttpService"):JSONDecode(readfile("OsirisCFGS/"..name..".cfg"))
+    for i,v in next, library.options do
+        spawn(function()pcall(function()
+            if config[i] then
+                if v.type == "colorpicker" then
+                    v.changeState(Color3.new(config[i][1],config[i][2],config[i][3]))
+                elseif v.type == "keybind" then
+                    v.changeState(Enum[config[i][1]][config[i][2]])
+                else
+                    if config[i] ~= library.flags[i] then
+                        v.changeState(config[i])
+                    end
+                end
+            else
+                if v.type == "toggle" then
+                    v.changeState(false)
+                elseif v.type == "slider" then
+                    v.changeState(v.args.value or 0)
+                elseif v.type == "textbox" or v.type == "list" or v.type == "cfg" then
+                    v.changeState(v.args.value or v.args.text or "")
+                elseif v.type == "colorpicker" then
+                    v.changeState(v.args.color or Color3.new(1,1,1))
+                elseif option.type == "list" then
+                    v.changeState("")
+                elseif option.type == "keybind" then
+                    v.changeState(v.args.key or Enum.KeyCode.Unknown)
+                end
+            end
+        end)end)
+    end
+    library:notify("Succesfully loaded config "..name..".cfg!")
+end
+
+function library:refreshConfigs()
+    local tbl = {}
+    for i,v in next, listfiles("OsirisCFGS") do
+        table.insert(tbl,v)
+    end
+    library.options["selected_config"].refresh(tbl)
+end
+
+function library:deleteConfig()
+    if isfile("OsirisCFGS/"..library.flags["selected_config"]..".cfg") then
+        delfile("OsirisCFGS/"..library.flags["selected_config"]..".cfg")
+        library:refreshConfigs()
+    end
+end
+local aimbotTab = library:addTab("Legit")
+local visualsTab = library:addTab("Ragebot")
+local miscTab = library:addTab("Visuals")
+local skinTab = library:addTab("Skins")
+local miscTab = library:addTab("Misc")
+local luaTab = library:addTab("Luas")
+local configTab = library:addTab("Settings")
+local createconfigs = configTab:createGroup('left', 'Create Configs')
+local configsettings = configTab:createGroup('left', 'Config Settings')
+local uisettings = configTab:createGroup('center', 'UI Settings')
+local othersettings = configTab:createGroup('right', 'Other')
+
+createconfigs:addTextbox({text = "Name",flag = "config_name"})
+createconfigs:addButton({text = "Load",callback = library.loadConfig})
+
+configsettings:addConfigbox({flag = 'test',values = {}})
+configsettings:addButton({text = "Load",callback = library.loadConfig})
+configsettings:addButton({text = "Update",callback = library.saveConfig})
+configsettings:addButton({text = "Delete",callback = library.deleteConfig})
+configsettings:addButton({text = "Refresh",callback = library.refreshConfigs})
+uisettings:addToggle({text = "Show Game Name",flag = "show game name"})
+uisettings:addTextbox({text = "Menu Title",flag = "menutitle"})
+uisettings:addTextbox({text = "Domain",flag = "menudomain"})
+uisettings:addColorpicker({text = "Domain Accent",ontop = true,flag = "domainaccent",color = Color3.new(1,1,1)})
+uisettings:addColorpicker({text = "Menu Accent",ontop = true,flag = "menuaccent",color = Color3.new(1,1,1)})
+
+othersettings:addToggle({text = "Show Keybinds",flag = "show game name"})
+configsettings:addButton({text = "Copy Game Invite"})
+configsettings:addButton({text = "Rejoin Server"})
+configsettings:addButton({text = "Server Hop"})
