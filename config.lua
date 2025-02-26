@@ -1,29 +1,40 @@
 local config = {}
 
 function config:init(library)
+    if not library then return end
     self.library = library
-    
+
     -- Create config folder
     if not isfolder("OsirisCFGS") then
         makefolder("OsirisCFGS")
     end
+
+    -- Initialize default config values
+    library.flags = library.flags or {}
+    library.flags["config_name"] = ""
+    library.flags["selected_config"] = ""
     
-    -- Add config methods to library
+    -- Initialize config options
+    library.options = library.options or {}
+    library.options["selected_config"] = {
+        values = {},
+        refresh = function(tbl)
+            library.options["selected_config"].values = tbl or {}
+        end
+    }
+
+    -- Add config methods
     library.createConfig = function(self)
         return config:create(self.flags["config_name"], self.flags)
     end
+
+    -- Initialize other library methods
+    library.saveConfig = self.saveConfig
+    library.loadConfig = self.loadConfig
+    library.refreshConfigs = self.refresh
     
-    library.loadConfig = function(self)
-        return config:load(self.flags["selected_config"])
-    end
-    
-    library.saveConfig = function(self)
-        return config:save(self.flags["selected_config"], self.flags)
-    end
-    
-    library.refreshConfigs = function(self)
-        return config:refresh()
-    end
+    -- Do initial config refresh
+    self:refresh()
 end
 
 function config:getConfig(name)

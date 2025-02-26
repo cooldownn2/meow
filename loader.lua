@@ -1,57 +1,53 @@
 local loader = {
     init = function()
-        -- Create config folder if it doesn't exist
-        if not isfolder("OsirisCFGS") then
-            makefolder("OsirisCFGS")
-        end
+        -- Initialize core UI flags and options first
+        _G.Library = {
+            flags = {},
+            options = {},
+            tabs = {},
+            toInvis = {},
+            libColor = Color3.fromRGB(69, 23, 255),
+            multiZindex = 200,
+            tabbuttons = {}
+        }
 
-        -- Load UI first since it contains the base functionality
+        -- Load UI
         local success, uiContent = pcall(function()
             return game:HttpGet("https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/UI.lua")
         end)
         
-        if not success then 
-            warn("Failed to load UI:", uiContent)
-            return
-        end
-
-        -- Execute UI module
-        local ui = loadstring(uiContent)()
-        if not ui then
-            warn("Failed to initialize UI")
-            return
-        end
-
-        -- Set up global reference early
-        _G.Library = ui
-
-        -- Let UI initialize itself first
-        if ui.init then
-            ui:init()
-        end
-
-        -- Load and initialize supporting modules after UI is ready
-        local modules = {
-            config = "config.lua",
-            utils = "utils.lua",
-            tabs = "tabs.lua"
-        }
-
-        for name, file in pairs(modules) do
-            local success, content = pcall(function()
-                return game:HttpGet("https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/" .. file)
-            end)
-            
-            if success then
-                local module = loadstring(content)()
-                if module and module.init then
-                    module:init(ui)
-                    ui[name] = module
+        if success then
+            local ui = loadstring(uiContent)()
+            if ui then
+                -- Merge UI properties
+                for k, v in pairs(ui) do
+                    _G.Library[k] = v
                 end
+                
+                -- Initialize config first
+                local configSuccess, configContent = pcall(function()
+                    return game:HttpGet("https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/config.lua")
+                end)
+                
+                if configSuccess then
+                    local config = loadstring(configContent)()
+                    if config then
+                        config:init(_G.Library)
+                        _G.Library.config = config
+                    end
+                end
+
+                -- Initialize UI after config
+                if _G.Library.init then
+                    _G.Library:init()
+                end
+
+                return _G.Library
             end
         end
-
-        return ui
+        
+        warn("Failed to initialize UI")
+        return nil
     end
 }
 
