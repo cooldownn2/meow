@@ -99,13 +99,22 @@ function library:addTab(name)
 
     table.insert(library.tabs,newTab)
     newTab.Parent = tabholder
-    newTab.Visible = false
+    -- Set first tab to visible by default
+    newTab.Visible = #library.tabs == 1 
 
     table.insert(library.tabbuttons,newButton)
     newButton.Parent = tabviewer
     newButton.Modal = true
     newButton.Visible = true
     newButton.text.Text = name
+    
+    -- Set first button as selected by default
+    if #library.tabs == 1 then
+        newButton.element.Visible = true
+        library:Tween(newButton.element, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.000})
+        newButton.text.TextColor3 = Color3.fromRGB(244, 244, 244)
+    end
+
     newButton.MouseButton1Click:Connect(function()
         for i,v in next, library.tabs do
             v.Visible = v == newTab
