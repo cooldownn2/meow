@@ -1,39 +1,22 @@
-local success, result = pcall(function()
-    -- Wait for HTTP request and handle errors
+local success, library = pcall(function()
     local loaderSource = game:HttpGet('https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/loader.lua')
-    if not loaderSource then
-        error("Failed to fetch loader source")
-    end
+    assert(loaderSource, "Failed to fetch loader source")
 
-    -- Load the source and execute it
-    local loaderFunc = loadstring(loaderSource)
-    if not loaderFunc then
-        error("Failed to compile loader source")
-    end
-
-    -- Execute the loader function
-    local loader = loaderFunc()
-    if not loader then
-        error("Loader returned nil")
-    end
-
-    -- Initialize the library
-    local library = loader.Init()
-    if not library then
-        error("Library initialization failed")
-    end
+    local loader = loadstring(loaderSource)()
+    assert(loader, "Failed to initialize loader")
     
-    return library
+    local lib = loader.Init()
+    assert(lib, "Failed to initialize library")
+    
+    return lib
 end)
 
 if not success then
-    warn("Failed to initialize:", result)
+    warn("Failed to initialize:", library)
     return
 end
 
-local library = result
-
--- Your UI code goes here
+-- Create tabs first
 local aimbotTab = library:addTab("Legit")
 local visualsTab = library:addTab("Ragebot")
 local miscTab = library:addTab("Visuals")
@@ -41,19 +24,23 @@ local skinTab = library:addTab("Skins")
 local miscTab = library:addTab("Misc")
 local luaTab = library:addTab("Luas")
 local configTab = library:addTab("Settings")
+
+-- Then create groups
 local createconfigs = configTab:createGroup('left', 'Create Configs')
 local configsettings = configTab:createGroup('left', 'Config Settings')
 local uisettings = configTab:createGroup('center', 'UI Settings')
 local othersettings = configTab:createGroup('right', 'Other')
 
+-- Now add elements to groups
 createconfigs:addTextbox({text = "Name",flag = "config_name"})
-createconfigs:addButton({text = "Load",callback = library.loadConfig})
+createconfigs:addButton({text = "Create",callback = function() library:createConfig() end})
 
-configsettings:addConfigbox({flag = 'test',values = {}})
-configsettings:addButton({text = "Load",callback = library.loadConfig})
-configsettings:addButton({text = "Update",callback = library.saveConfig})
-configsettings:addButton({text = "Delete",callback = library.deleteConfig})
-configsettings:addButton({text = "Refresh",callback = library.refreshConfigs})
+configsettings:addConfigbox({flag = 'selected_config',values = {}})
+configsettings:addButton({text = "Load",callback = function() library:loadConfig() end})
+configsettings:addButton({text = "Save",callback = function() library:saveConfig() end})
+configsettings:addButton({text = "Delete",callback = function() library:deleteConfig() end})
+configsettings:addButton({text = "Refresh",callback = function() library:refreshConfigs() end})
+
 uisettings:addToggle({text = "Show Game Name",flag = "show game name"})
 uisettings:addTextbox({text = "Menu Title",flag = "menutitle"})
 uisettings:addTextbox({text = "Domain",flag = "menudomain"})
