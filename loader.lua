@@ -4,31 +4,31 @@ local function log(msg)
     print("[LOADER] " .. tostring(msg))
 end
 
--- Load UI directly first
 function loader.init()
-    -- Set up global environment
-    _G.Library = {}
-    
-    -- Load and execute UI
-    local success, content = pcall(function()
-        return game:HttpGet("https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/UI.lua")
+    local content = game:HttpGet("https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/UI.lua")
+    if not content then
+        log("Failed to fetch UI module")
+        return
+    end
+
+    local success, result = pcall(function()
+        local ui = loadstring(content)()
+        _G.Library = ui
+        if type(ui) ~= "table" then
+            error("UI module must return a table")
+        end
+        -- Create essential UI properties if they don't exist
+        ui.flags = ui.flags or {}
+        ui.options = ui.options or {}
+        ui.tabs = ui.tabs or {}
+        return ui
     end)
-    
     if not success then
-        log("Failed to load UI: " .. tostring(content))
+        log("Failed to initialize UI: " .. tostring(result))
         return
     end
-    
-    local ui = loadstring(content)()
-    if not ui then
-        log("Failed to execute UI")
-        return
-    end
-    
-    -- Store UI reference globally
-    _G.Library = ui
-    
-    return ui
+
+    return result
 end
 
 return loader
