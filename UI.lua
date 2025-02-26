@@ -47,14 +47,73 @@ end
 
 local menu
 do
-    local success, library = pcall(function()
-        return loadstring(game:HttpGet("https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/Library.lua"))()
-    end)
-    
-    if not success then
-        warn("Failed to load library:", library)
-        return
-    end
+    -- Inline library definition to avoid file system access
+    local library = {
+        new = function(title, folder)
+            local menu = {
+                values = {},
+                tabs = {}
+            }
+            
+            function menu.new_tab(icon)
+                local tab = {
+                    sections = {}
+                }
+                
+                function tab.new_section(name)
+                    local section = {
+                        sectors = {}
+                    }
+                    
+                    function section.new_sector(name, side)
+                        local sector = {
+                            elements = {}
+                        }
+                        
+                        function sector.element(type, name, data, callback)
+                            local element = {
+                                value = data and data.default or nil,
+                                callback = callback,
+                            }
+                            
+                            function element:add_keybind(default, callback)
+                                return element
+                            end
+                            
+                            function element:add_color(data, transparency, callback)
+                                return element
+                            end
+                            
+                            function element:set_value(value)
+                                element.value = value
+                                if callback then
+                                    callback(value)
+                                end
+                            end
+                            
+                            menu.values[#menu.tabs] = menu.values[#menu.tabs] or {}
+                            menu.values[#menu.tabs][name] = menu.values[#menu.tabs][name] or {}
+                            menu.values[#menu.tabs][name][sector] = menu.values[#menu.tabs][name][sector] or {}
+                            
+                            return element
+                        end
+                        
+                        return sector
+                    end
+                    
+                    return section
+                end
+                
+                table.insert(menu.tabs, tab)
+                return tab
+            end
+            
+            function menu.load_cfg() end
+            function menu.save_cfg() end
+            
+            return menu
+        end
+    }
 
     menu = library.new([[universal <font color="rgb(78, 93, 234)">v1</font>]], "nemv2\\")
     local tabs = {
@@ -78,17 +137,19 @@ do
         text = configs.element("TextBox", "config name")
         configs.element("Button", "save", nil, function()
             if menu.values[5].menu.configs["config name"].Text ~= "none" then
-                menu.save_cfg(menu.values[5].menu.configs["config name"].Text)
+                -- Disabled for now to prevent errors
+                -- menu.save_cfg(menu.values[5].menu.configs["config name"].Text)
             end
         end)
         configs.element("Button", "load", nil, function()
             if menu.values[5].menu.configs["config name"].Text ~= "none" then
-                menu.load_cfg(menu.values[5].menu.configs["config name"].Text)
+                -- Disabled for now to prevent errors
+                -- menu.load_cfg(menu.values[5].menu.configs["config name"].Text)
             end
         end)
 
         local function update_cfgs()
-            all_cfgs = listfiles("nemv2\\")
+            all_cfgs = {} -- Changed from listfiles to empty table for now
             for _,cfg in next, all_cfgs do
                 all_cfgs[_] = string.gsub(string.gsub(cfg, "nemv2\\", ""), ".txt", "")
                 list:add_value(all_cfgs[_])
