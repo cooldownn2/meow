@@ -1,11 +1,11 @@
-local inputService   = game:GetService("UserInputService")
-local runService     = game:GetService("RunService")
-local tweenService   = game:GetService("TweenService")
-local players        = game:GetService("Players")
-local localPlayer    = players.LocalPlayer
-local mouse          = localPlayer:GetMouse()
+local inputService = game:GetService("UserInputService")
+local runService = game:GetService("RunService")
+local tweenService = game:GetService("TweenService")
+local players = game:GetService("Players")
+local localPlayer = players.LocalPlayer
+local mouse = localPlayer:GetMouse()
 
-local menu           = game:GetObjects("rbxassetid://12705540680")[1]
+local menu = game:GetObjects("rbxassetid://12705540680")[1]
 
 -- Handle different exploit environments
 local function protectGui(gui)
@@ -21,7 +21,7 @@ local function protectGui(gui)
 end
 
 protectGui(menu)
-menu.bg.Position     = UDim2.new(0.5,-menu.bg.Size.X.Offset/2,0.5,-menu.bg.Size.Y.Offset/2)
+menu.bg.Position = UDim2.new(0.5, -menu.bg.Size.X.Offset / 2, 0.5, -menu.bg.Size.Y.Offset / 2)
 menu.bg.pre.Text = 'Seere<font color="#4517ff">.vip</font> - fiji was here!!!!'
 
 -- Create config folder if it doesn't exist
@@ -29,14 +29,9 @@ if not isfolder("OsirisCFGS") then
     makefolder("OsirisCFGS")
 end
 
--- Config system helper functions
-local function formatConfigName(name)
-    return name:gsub(".cfg", ""):gsub("OsirisCFGS/", "")
-end
-
-local function getConfigPath(name)
-    return "OsirisCFGS/" .. formatConfigName(name) .. ".cfg"
-end
+-- Load modules
+local config = require("config")
+local tabs = require("tabs")
 
 local library = {
     cheatname = "";
@@ -63,7 +58,45 @@ local library = {
     }
 }
 
-function draggable(a)local b=inputService;local c;local d;local e;local f;local function g(h)if not library.colorpicking then local i=h.Position-e;a.Position=UDim2.new(f.X.Scale,f.X.Offset+i.X,f.Y.Scale,f.Y.Offset+i.Y)end end;a.InputBegan:Connect(function(h)if h.UserInputType==Enum.UserInputType.MouseButton1 or h.UserInputType==Enum.UserInputType.Touch then c=true;e=h.Position;f=a.Position;h.Changed:Connect(function()if h.UserInputState==Enum.UserInputState.End then c=false end end)end end)a.InputChanged:Connect(function(h)if h.UserInputType==Enum.UserInputType.MouseMovement or h.UserInputType==Enum.UserInputType.Touch then d=h end end)b.InputChanged:Connect(function(h)if h==d and c then g(h)end end)end
+-- Initialize config system
+config:init(library)
+library.config = config
+
+function draggable(a)
+    local b = inputService
+    local c
+    local d
+    local e
+    local f
+    local function g(h)
+        if not library.colorpicking then
+            local i = h.Position - e
+            a.Position = UDim2.new(f.X.Scale, f.X.Offset + i.X, f.Y.Scale, f.Y.Offset + i.Y)
+        end
+    end
+    a.InputBegan:Connect(function(h)
+        if h.UserInputType == Enum.UserInputType.MouseButton1 or h.UserInputType == Enum.UserInputType.Touch then
+            c = true
+            e = h.Position
+            f = a.Position
+            h.Changed:Connect(function()
+                if h.UserInputState == Enum.UserInputState.End then
+                    c = false
+                end
+            end)
+        end
+    end)
+    a.InputChanged:Connect(function(h)
+        if h.UserInputType == Enum.UserInputType.MouseMovement or h.UserInputType == Enum.UserInputType.Touch then
+            d = h
+        end
+    end)
+    b.InputChanged:Connect(function(h)
+        if h == d and c then
+            g(h)
+        end
+    end)
+end
 draggable(menu.bg)
 
 local tabholder = menu.bg.bg.bg.bg.main.group
@@ -74,7 +107,7 @@ inputService.InputEnded:Connect(function(key)
         menu.Enabled = not menu.Enabled
         library.scrolling = false
         library.colorpicking = false
-        for i,v in next, library.toInvis do
+        for i, v in next, library.toInvis do
             v.Visible = false
         end
     end
@@ -102,8 +135,8 @@ local keyNames = {
 library.notifyText.Font = 2
 library.notifyText.Size = 13
 library.notifyText.Outline = true
-library.notifyText.Color = Color3.new(1,1,1)
-library.notifyText.Position = Vector2.new(10,60)
+library.notifyText.Color = Color3.new(1, 1, 1)
+library.notifyText.Position = Vector2.new(10, 60)
 
 function library:Tween(...)
     tweenService:Create(...):Play()
@@ -115,12 +148,14 @@ function library:notify(text)
     library.notifyText.Text = text
     library.notifyText.Transparency = 0
     library.notifyText.Visible = true
-    for i = 0,1,0.1 do wait()
+    for i = 0, 1, 0.1 do
+        wait()
         library.notifyText.Transparency = i
     end
     spawn(function()
         wait(3)
-        for i = 1,0,-0.1 do wait()
+        for i = 1, 0, -0.1 do
+            wait()
             library.notifyText.Transparency = i
         end
         playing = false
@@ -132,30 +167,30 @@ function library:addTab(name)
     local newTab = tabholder.tab:Clone()
     local newButton = tabviewer.button:Clone()
 
-    table.insert(library.tabs,newTab)
+    table.insert(library.tabs, newTab)
     newTab.Parent = tabholder
     newTab.Visible = false
 
-    table.insert(library.tabbuttons,newButton)
+    table.insert(library.tabbuttons, newButton)
     newButton.Parent = tabviewer
     newButton.Modal = true
     newButton.Visible = true
     newButton.text.Text = name
     newButton.MouseButton1Click:Connect(function()
-        for i,v in next, library.tabs do
+        for i, v in next, library.tabs do
             v.Visible = v == newTab
         end
-        for i,v in next, library.toInvis do
+        for i, v in next, library.toInvis do
             v.Visible = false
         end
-        for i,v in next, library.tabbuttons do
+        for i, v in next, library.tabbuttons do
             local state = v == newButton
             if state then
                 v.element.Visible = true
-                library:Tween(v.element, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0.000})
+                library:Tween(v.element, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { BackgroundTransparency = 0.000 })
                 v.text.TextColor3 = Color3.fromRGB(244, 244, 244)
             else
-                library:Tween(v.element, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 1.000})
+                library:Tween(v.element, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { BackgroundTransparency = 1.000 })
                 v.text.TextColor3 = Color3.fromRGB(144, 144, 144)
             end
         end
@@ -165,8 +200,8 @@ function library:addTab(name)
     local groupCount = 0
     local jigCount = 0
     local topStuff = 2000
-  
-    function tab:createGroup(pos,groupname) -- newTab[pos == 0 and "left" or "right"] 
+
+    function tab:createGroup(pos, groupname) -- newTab[pos == 0 and "left" or "right"] 
         local groupbox = Instance.new("Frame")
         local grouper = Instance.new("Frame")
         local UIListLayout = Instance.new("UIListLayout")
@@ -225,11 +260,11 @@ function library:addTab(name)
         local group = {}
 
         function group:addToggle(args)
-            if not args.flag and args.text then 
-                args.flag = args.text 
+            if not args.flag and args.text then
+                args.flag = args.text
             end
-            if not args.flag then 
-                return warn("⚠️ incorrect arguments ⚠️ - missing args on recent toggle") 
+            if not args.flag then
+                return warn("⚠️ incorrect arguments ⚠️ - missing args on recent toggle")
             end
             groupbox.Size += UDim2.new(0, 0, 0, 20)
 
@@ -333,13 +368,13 @@ function library:addTab(name)
             end)
 
             library.flags[args.flag] = false
-            library.options[args.flag] = {type = "toggle",changeState = toggle,skipflag = args.skipflag,oldargs = args}
+            library.options[args.flag] = { type = "toggle", changeState = toggle, skipflag = args.skipflag, oldargs = args }
             local toggle = {}
 
             function toggle:addKeybind(args)
                 if not args.flag then return warn("⚠️ incorrect arguments ⚠️ - missing args on toggle:keybind") end
                 local next = false
-                
+
                 local keybind = Instance.new("Frame")
                 local button = Instance.new("TextButton")
 
@@ -372,7 +407,7 @@ function library:addTab(name)
                 inputService.InputBegan:Connect(function(key)
                     local key = key.KeyCode == Enum.KeyCode.Unknown and key.UserInputType or key.KeyCode
                     if next then
-                        if not table.find(library.blacklisted,key) then
+                        if not table.find(library.blacklisted, key) then
                             next = false
                             library.flags[args.flag] = key
                             button.Text = keyNames[key] or key.Name
@@ -393,7 +428,7 @@ function library:addTab(name)
                 end)
 
                 library.flags[args.flag] = Enum.KeyCode.Unknown
-                library.options[args.flag] = {type = "keybind",changeState = updateValue,skipflag = args.skipflag,oldargs = args}
+                library.options[args.flag] = { type = "keybind", changeState = updateValue, skipflag = args.skipflag, oldargs = args }
                 updateValue(args.key or Enum.KeyCode.Unknown)
             end
 
@@ -431,7 +466,7 @@ function library:addTab(name)
                 mid.BorderColor3 = Color3.fromRGB(60, 60, 60)
                 mid.BorderSizePixel = 2
                 mid.Size = UDim2.new(1, 0, 1, 0)
-                
+
                 front.Name = "front"
                 front.Parent = mid
                 front.BackgroundColor3 = Color3.fromRGB(240, 142, 214)
@@ -448,22 +483,22 @@ function library:addTab(name)
                 button2.TextColor3 = Color3.fromRGB(0, 0, 0)
                 button2.TextSize = 14.000
 
-				colorFrame.Name = "colorFrame"
-				colorFrame.Parent = toggleframe
-				colorFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-				colorFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
-				colorFrame.BorderSizePixel = 2
-				colorFrame.Position = UDim2.new(0.101092957, 0, 0.75, 0)
-				colorFrame.Size = UDim2.new(0, 137, 0, 128)
+                colorFrame.Name = "colorFrame"
+                colorFrame.Parent = toggleframe
+                colorFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+                colorFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+                colorFrame.BorderSizePixel = 2
+                colorFrame.Position = UDim2.new(0.101092957, 0, 0.75, 0)
+                colorFrame.Size = UDim2.new(0, 137, 0, 128)
 
-				colorFrame_2.Name = "colorFrame"
-				colorFrame_2.Parent = colorFrame
-				colorFrame_2.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-				colorFrame_2.BorderColor3 = Color3.fromRGB(60, 60, 60)
-				colorFrame_2.Size = UDim2.new(1, 0, 1, 0)
+                colorFrame_2.Name = "colorFrame"
+                colorFrame_2.Parent = colorFrame
+                colorFrame_2.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+                colorFrame_2.BorderColor3 = Color3.fromRGB(60, 60, 60)
+                colorFrame_2.Size = UDim2.new(1, 0, 1, 0)
 
-				hueframe.Name = "hueframe"
-				hueframe.Parent = colorFrame_2
+                hueframe.Name = "hueframe"
+                hueframe.Parent = colorFrame_2
                 hueframe.BackgroundColor3 = Color3.fromRGB(34, 34, 34)
                 hueframe.BorderColor3 = Color3.fromRGB(60, 60, 60)
                 hueframe.BorderSizePixel = 2
@@ -550,7 +585,7 @@ function library:addTab(name)
                     mid.BorderColor3 = Color3.fromRGB(60, 60, 60)
                 end)
 
-                local function updateValue(value,fakevalue)
+                local function updateValue(value, fakevalue)
                     if typeof(value) == "table" then value = fakevalue end
                     library.flags[args.flag] = value
                     front.BackgroundColor3 = value
@@ -559,24 +594,24 @@ function library:addTab(name)
                     end
                 end
 
-                local white, black = Color3.new(1,1,1), Color3.new(0,0,0)
-                local colors = {Color3.new(1,0,0),Color3.new(1,1,0),Color3.new(0,1,0),Color3.new(0,1,1),Color3.new(0,0,1),Color3.new(1,0,1),Color3.new(1,0,0)}
+                local white, black = Color3.new(1, 1, 1), Color3.new(0, 0, 0)
+                local colors = { Color3.new(1, 0, 0), Color3.new(1, 1, 0), Color3.new(0, 1, 0), Color3.new(0, 1, 1), Color3.new(0, 0, 1), Color3.new(1, 0, 1), Color3.new(1, 0, 0) }
                 local heartbeat = game:GetService("RunService").Heartbeat
 
-                local pickerX,pickerY,hueY = 0,0,0
-                local oldpercentX,oldpercentY = 0,0
+                local pickerX, pickerY, hueY = 0, 0, 0
+                local oldpercentX, oldpercentY = 0, 0
 
                 hue.MouseEnter:Connect(function()
                     local input = hue.InputBegan:connect(function(key)
                         if key.UserInputType == Enum.UserInputType.MouseButton1 then
                             while heartbeat:wait() and inputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
                                 library.colorpicking = true
-                                local percent = (hueY-hue.AbsolutePosition.Y-36)/hue.AbsoluteSize.Y
-                                local num = math.max(1, math.min(7,math.floor(((percent*7+0.5)*100))/100))
+                                local percent = (hueY - hue.AbsolutePosition.Y - 36) / hue.AbsoluteSize.Y
+                                local num = math.max(1, math.min(7, math.floor(((percent * 7 + 0.5) * 100)) / 100))
                                 local startC = colors[math.floor(num)]
                                 local endC = colors[math.ceil(num)]
                                 local color = white:lerp(picker.BackgroundColor3, oldpercentX):lerp(black, oldpercentY)
-                                picker.BackgroundColor3 = startC:lerp(endC, num-math.floor(num)) or Color3.new(0, 0, 0)
+                                picker.BackgroundColor3 = startC:lerp(endC, num - math.floor(num)) or Color3.new(0, 0, 0)
                                 updateValue(color)
                             end
                             library.colorpicking = false
@@ -594,11 +629,11 @@ function library:addTab(name)
                         if key.UserInputType == Enum.UserInputType.MouseButton1 then
                             while heartbeat:wait() and inputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
                                 library.colorpicking = true
-                                local xPercent = (pickerX-picker.AbsolutePosition.X)/picker.AbsoluteSize.X
-                                local yPercent = (pickerY-picker.AbsolutePosition.Y-36)/picker.AbsoluteSize.Y
+                                local xPercent = (pickerX - picker.AbsolutePosition.X) / picker.AbsoluteSize.X
+                                local yPercent = (pickerY - picker.AbsolutePosition.Y - 36) / picker.AbsoluteSize.Y
                                 local color = white:lerp(picker.BackgroundColor3, xPercent):lerp(black, yPercent)
                                 updateValue(color)
-                                oldpercentX,oldpercentY = xPercent,yPercent
+                                oldpercentX, oldpercentY = xPercent, yPercent
                             end
                             library.colorpicking = false
                         end
@@ -615,13 +650,13 @@ function library:addTab(name)
                 end)
 
                 picker.MouseMoved:connect(function(x, y)
-                    pickerX,pickerY = x,y
+                    pickerX, pickerY = x, y
                 end)
 
-                table.insert(library.toInvis,colorFrame)
-                library.flags[args.flag] = Color3.new(1,1,1)
-                library.options[args.flag] = {type = "colorpicker",changeState = updateValue,skipflag = args.skipflag,oldargs = args}
-                updateValue(args.color or Color3.new(1,1,1))
+                table.insert(library.toInvis, colorFrame)
+                library.flags[args.flag] = Color3.new(1, 1, 1)
+                library.options[args.flag] = { type = "colorpicker", changeState = updateValue, skipflag = args.skipflag, oldargs = args }
+                updateValue(args.color or Color3.new(1, 1, 1))
             end
             return toggle
         end
@@ -656,7 +691,7 @@ function library:addTab(name)
             main.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
             main.BorderColor3 = Color3.fromRGB(60, 60, 60)
             main.Size = UDim2.new(1, 0, 1, 0)
-            
+
             button.Name = "button"
             button.Parent = main
             button.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
@@ -669,7 +704,7 @@ function library:addTab(name)
             button.TextSize = 13.000
             button.TextStrokeTransparency = 0.000
 
-            gradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(171, 171, 171))}
+            gradient.Color = ColorSequence.new { ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(171, 171, 171)) }
             gradient.Rotation = 90
             gradient.Name = "gradient"
             gradient.Parent = main
@@ -682,14 +717,14 @@ function library:addTab(name)
 
             button.MouseEnter:connect(function()
                 main.BorderColor3 = library.libColor
-			end)
+            end)
 
-			button.MouseLeave:connect(function()
+            button.MouseLeave:connect(function()
                 main.BorderColor3 = Color3.fromRGB(60, 60, 60)
-			end)
+            end)
         end
 
-        function group:addSlider(args,sub)
+        function group:addSlider(args, sub)
             if not args.flag or not args.max then return warn("⚠️ incorrect arguments ⚠️") end
             groupbox.Size += UDim2.new(0, 0, 0, 30)
 
@@ -722,7 +757,7 @@ function library:addTab(name)
             main.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
             main.BorderColor3 = Color3.fromRGB(50, 50, 50)
             main.Size = UDim2.new(1, 0, 1, 0)
-            
+
             fill.Name = "fill"
             fill.Parent = main
             fill.BackgroundColor3 = library.libColor
@@ -730,7 +765,7 @@ function library:addTab(name)
             fill.BorderColor3 = Color3.fromRGB(60, 60, 60)
             fill.BorderSizePixel = 0
             fill.Size = UDim2.new(0.617238641, 13, 1, 0)
-            
+
             button.Name = "button"
             button.Parent = main
             button.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -751,10 +786,10 @@ function library:addTab(name)
             valuetext.TextSize = 14.000
             valuetext.TextStrokeTransparency = 0.000
 
-            UIGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(113, 113, 113))}
+            UIGradient.Color = ColorSequence.new { ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(113, 113, 113)) }
             UIGradient.Rotation = 90
             UIGradient.Parent = main
-            
+
             text.Name = "text"
             text.Parent = slider
             text.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -769,66 +804,68 @@ function library:addTab(name)
             text.TextXAlignment = Enum.TextXAlignment.Left
 
             local entered = false
-			local scrolling = false
-			local amount = 0
+            local scrolling = false
+            local amount = 0
 
-			local function updateValue(value)
+            local function updateValue(value)
                 if library.colorpicking then return end
-				if value ~= 0 then
-					fill:TweenSize(UDim2.new(value/args.max,0,1,0),Enum.EasingDirection.In,Enum.EasingStyle.Sine,0.01)
-				else
-					fill:TweenSize(UDim2.new(0,1,1,0),Enum.EasingDirection.In,Enum.EasingStyle.Sine,0.01)
+                if value ~= 0 then
+                    fill:TweenSize(UDim2.new(value / args.max, 0, 1, 0), Enum.EasingDirection.In, Enum.EasingStyle.Sine, 0.01)
+                else
+                    fill:TweenSize(UDim2.new(0, 1, 1, 0), Enum.EasingDirection.In, Enum.EasingStyle.Sine, 0.01)
                 end
-                valuetext.Text = value..sub
+                valuetext.Text = value .. sub
                 library.flags[args.flag] = value
                 if args.callback then
                     args.callback(value)
                 end
-			end
+            end
 
-			local function updateScroll()
+            local function updateScroll()
                 if scrolling or library.scrolling or not newTab.Visible or library.colorpicking then return end
-                while inputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) and menu.Enabled do runService.RenderStepped:Wait()
+                while inputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) and menu.Enabled do
+                    runService.RenderStepped:Wait()
                     library.scrolling = true
-                    valuetext.TextColor3 = Color3.fromRGB(255,255,255)
-					scrolling = true
-					local value = args.min + ((mouse.X - button.AbsolutePosition.X) / button.AbsoluteSize.X) * (args.max - args.min)
-					if value < 0 then value = 0 end
-					if value > args.max then value = args.max end
+                    valuetext.TextColor3 = Color3.fromRGB(255, 255, 255)
+                    scrolling = true
+                    local value = args.min + ((mouse.X - button.AbsolutePosition.X) / button.AbsoluteSize.X) * (args.max - args.min)
+                    if value < 0 then value = 0 end
+                    if value > args.max then value = args.max end
                     if value < args.min then value = args.min end
-					updateValue(math.floor(value))
+                    updateValue(math.floor(value))
                 end
                 if scrolling and not entered then
-                    valuetext.TextColor3 = Color3.fromRGB(255,255,255)
+                    valuetext.TextColor3 = Color3.fromRGB(255, 255, 255)
                 end
                 if not menu.Enabled then
                     entered = false
                 end
                 scrolling = false
                 library.scrolling = false
-			end
+            end
 
-			button.MouseEnter:connect(function()
+            button.MouseEnter:connect(function()
                 if library.colorpicking then return end
-				if scrolling or entered then return end
+                if scrolling or entered then return end
                 entered = true
-				main.BorderColor3 = library.libColor
-				while entered do wait()
-					updateScroll()
-				end
-			end)
+                main.BorderColor3 = library.libColor
+                while entered do
+                    wait()
+                    updateScroll()
+                end
+            end)
 
-			button.MouseLeave:connect(function()
+            button.MouseLeave:connect(function()
                 entered = false
                 main.BorderColor3 = Color3.fromRGB(60, 60, 60)
-			end)
+            end)
 
             if args.value then
                 updateValue(args.value)
             end
 
             library.flags[args.flag] = 0
-            library.options[args.flag] = {type = "slider",changeState = updateValue,skipflag = args.skipflag,oldargs = args}
+            library.options[args.flag] = { type = "slider", changeState = updateValue, skipflag = args.skipflag, oldargs = args }
             updateValue(args.value or 0)
         end
 
@@ -881,7 +918,7 @@ function library:addTab(name)
             box.TextStrokeTransparency = 0.000
             box.TextXAlignment = Enum.TextXAlignment.Left
 
-            gradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(171, 171, 171))}
+            gradient.Color = ColorSequence.new { ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(171, 171, 171)) }
             gradient.Rotation = 90
             gradient.Name = "gradient"
             gradient.Parent = main
@@ -900,7 +937,7 @@ function library:addTab(name)
             text.TextXAlignment = Enum.TextXAlignment.Left
 
             library.flags[args.flag] = args.value or ""
-            library.options[args.flag] = {type = "textbox",changeState = function(text) box.Text = text end,skipflag = args.skipflag,oldargs = args}
+            library.options[args.flag] = { type = "textbox", changeState = function(text) box.Text = text end, skipflag = args.skipflag, oldargs = args }
 
             box:GetPropertyChangedSignal('Text'):Connect(function(val)
                 if library.colorpicking then return end
@@ -940,7 +977,7 @@ function library:addTab(name)
             main.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
             main.BorderColor3 = Color3.fromRGB(60, 60, 60)
             main.Size = UDim2.new(0, 191, 0, 1)
-        end 
+        end
 
         function group:addList(args)
             if not args.flag or not args.values then return warn("⚠️ incorrect arguments ⚠️") end
@@ -1019,7 +1056,7 @@ function library:addTab(name)
             valuetext.TextStrokeTransparency = 0.000
             valuetext.TextXAlignment = Enum.TextXAlignment.Left
 
-            gradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(171, 171, 171))}
+            gradient.Color = ColorSequence.new { ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(171, 171, 171)) }
             gradient.Rotation = 90
             gradient.Name = "gradient"
             gradient.Parent = main
@@ -1056,70 +1093,70 @@ function library:addTab(name)
             UIListLayout.Parent = holder
             UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
-			local function updateValue(value)
+            local function updateValue(value)
                 if value == nil then valuetext.Text = "nil" return end
-				if args.multiselect then
+                if args.multiselect then
                     if type(value) == "string" then
-                        if not table.find(library.options[args.flag].values,value) then return end
-                        if table.find(library.flags[args.flag],value) then
-                            for i,v in pairs(library.flags[args.flag]) do
+                        if not table.find(library.options[args.flag].values, value) then return end
+                        if table.find(library.flags[args.flag], value) then
+                            for i, v in pairs(library.flags[args.flag]) do
                                 if v == value then
-                                    table.remove(library.flags[args.flag],i)
+                                    table.remove(library.flags[args.flag], i)
                                 end
                             end
                         else
-                            table.insert(library.flags[args.flag],value)
+                            table.insert(library.flags[args.flag], value)
                         end
                     else
                         library.flags[args.flag] = value
                     end
-					local buttonText = ""
-					for i,v in pairs(library.flags[args.flag]) do
-						local jig = i ~= #library.flags[args.flag] and "," or ""
-						buttonText = buttonText..v..jig
-					end
+                    local buttonText = ""
+                    for i, v in pairs(library.flags[args.flag]) do
+                        local jig = i ~= #library.flags[args.flag] and "," or ""
+                        buttonText = buttonText .. v .. jig
+                    end
                     if buttonText == "" then buttonText = "..." end
-					for i,v in next, holder:GetChildren() do
-						if v.ClassName ~= "Frame" then continue end
-						v.off.TextColor3 = Color3.new(0.65,0.65,0.65)
-						for _i,_v in next, library.flags[args.flag] do
-							if v.Name == _v then
-								v.off.TextColor3 = Color3.new(1,1,1)
-							end
-						end
-					end
-					valuetext.Text = buttonText
-					if args.callback then
-						args.callback(library.flags[args.flag])
-					end
-				else
-                    if not table.find(library.options[args.flag].values,value) then value = library.options[args.flag].values[1] end
-                    library.flags[args.flag] = value
-					for i,v in next, holder:GetChildren() do
-						if v.ClassName ~= "Frame" then continue end
-						v.off.TextColor3 = Color3.new(0.65,0.65,0.65)
-                        if v.Name == library.flags[args.flag] then
-                            v.off.TextColor3 = Color3.new(1,1,1)
+                    for i, v in next, holder:GetChildren() do
+                        if v.ClassName ~= "Frame" then continue end
+                        v.off.TextColor3 = Color3.new(0.65, 0.65, 0.65)
+                        for _i, _v in next, library.flags[args.flag] do
+                            if v.Name == _v then
+                                v.off.TextColor3 = Color3.new(1, 1, 1)
+                            end
                         end
-					end
-					frame.Visible = false
+                    end
+                    valuetext.Text = buttonText
+                    if args.callback then
+                        args.callback(library.flags[args.flag])
+                    end
+                else
+                    if not table.find(library.options[args.flag].values, value) then value = library.options[args.flag].values[1] end
+                    library.flags[args.flag] = value
+                    for i, v in next, holder:GetChildren() do
+                        if v.ClassName ~= "Frame" then continue end
+                        v.off.TextColor3 = Color3.new(0.65, 0.65, 0.65)
+                        if v.Name == library.flags[args.flag] then
+                            v.off.TextColor3 = Color3.new(1, 1, 1)
+                        end
+                    end
+                    frame.Visible = false
                     if library.flags[args.flag] then
                         valuetext.Text = library.flags[args.flag]
                         if args.callback then
                             args.callback(library.flags[args.flag])
                         end
                     end
-				end
-			end
+                end
+            end
 
             function refresh(tbl)
-                for i,v in next, holder:GetChildren() do
+                for i, v in next, holder:GetChildren() do
                     if v.ClassName == "Frame" then
                         v:Destroy()
                     end
-					frame.Size = UDim2.new(0, 203, 0, 0)
+                    frame.Size = UDim2.new(0, 203, 0, 0)
                 end
-                for i,v in pairs(tbl) do
+                for i, v in pairs(tbl) do
                     frame.Size += UDim2.new(0, 0, 0, 20)
                     local option = Instance.new("Frame")
                     local button_2 = Instance.new("TextButton")
@@ -1150,7 +1187,7 @@ function library:addTab(name)
                     text_2.Size = UDim2.new(0, 0, 1, 0)
                     text_2.Font = Enum.Font.Code
                     text_2.Text = v
-                    text_2.TextColor3 = args.multiselect and Color3.new(0.65,0.65,0.65) or Color3.new(1,1,1)
+                    text_2.TextColor3 = args.multiselect and Color3.new(0.65, 0.65, 0.65) or Color3.new(1, 1, 1)
                     text_2.TextSize = 14.000
                     text_2.TextStrokeTransparency = 0.000
                     text_2.TextXAlignment = Enum.TextXAlignment.Left
@@ -1160,7 +1197,7 @@ function library:addTab(name)
                     end)
                 end
                 library.options[args.flag].values = tbl
-                updateValue(table.find(library.options[args.flag].values,library.flags[args.flag]) and library.flags[args.flag] or library.options[args.flag].values[1])
+                updateValue(table.find(library.options[args.flag].values, library.flags[args.flag]) and library.flags[args.flag] or library.options[args.flag].values[1])
             end
 
             button.MouseButton1Click:Connect(function()
@@ -1171,15 +1208,15 @@ function library:addTab(name)
 
             button.MouseEnter:connect(function()
                 main.BorderColor3 = library.libColor
-			end)
+            end)
 
-			button.MouseLeave:connect(function()
+            button.MouseLeave:connect(function()
                 main.BorderColor3 = Color3.fromRGB(60, 60, 60)
-			end)
+            end)
 
-            table.insert(library.toInvis,frame)
+            table.insert(library.toInvis, frame)
             library.flags[args.flag] = args.multiselect and {} or ""
-            library.options[args.flag] = {type = "list",changeState = updateValue,values = args.values,refresh = refresh,skipflag = args.skipflag,oldargs = args}
+            library.options[args.flag] = { type = "list", changeState = updateValue, values = args.values, refresh = refresh, skipflag = args.skipflag, oldargs = args }
             refresh(args.values)
             updateValue(args.value or not args.multiselect and args.values[1] or "abcdefghijklmnopqrstuwvxyz")
         end
@@ -1263,15 +1300,15 @@ function library:addTab(name)
 
             local function updateValue(value)
                 if value == nil then return end
-                if not table.find(library.options[args.flag].values,value) then value = library.options[args.flag].values[1] end
+                if not table.find(library.options[args.flag].values, value) then value = library.options[args.flag].values[1] end
                 library.flags[args.flag] = value
 
-                for i,v in next, holder:GetChildren() do
+                for i, v in next, holder:GetChildren() do
                     if v.ClassName ~= "Frame" then continue end
                     if v.text.Text == library.flags[args.flag] then
                         v.text.TextColor3 = library.libColor
                     else
-                        v.text.TextColor3 = Color3.fromRGB(255,255,255)
+                        v.text.TextColor3 = Color3.fromRGB(255, 255, 255)
                     end
                 end
                 if library.flags[args.flag] then
@@ -1288,12 +1325,12 @@ function library:addTab(name)
             end)
 
             function refresh(tbl)
-                for i,v in next, holder:GetChildren() do
+                for i, v in next, holder:GetChildren() do
                     if v.ClassName == "Frame" then
                         v:Destroy()
                     end
                 end
-                for i,v in pairs(tbl) do
+                for i, v in pairs(tbl) do
                     local item = Instance.new("Frame")
                     local button = Instance.new("TextButton")
                     local text = Instance.new("TextLabel")
@@ -1333,11 +1370,11 @@ function library:addTab(name)
                 end
                 holder.Visible = true
                 library.options[args.flag].values = tbl
-                updateValue(table.find(library.options[args.flag].values,library.flags[args.flag]) and library.flags[args.flag] or library.options[args.flag].values[1])
+                updateValue(table.find(library.options[args.flag].values, library.flags[args.flag]) and library.flags[args.flag] or library.options[args.flag].values[1])
             end
 
             library.flags[args.flag] = ""
-            library.options[args.flag] = {type = "cfg",changeState = updateValue,values = args.values,refresh = refresh,skipflag = args.skipflag,oldargs = args}
+            library.options[args.flag] = { type = "cfg", changeState = updateValue, values = tbl, refresh = refresh, skipflag = args.skipflag, oldargs = args }
             refresh(args.values)
             updateValue(args.value or not args.multiselect and args.values[1] or "abcdefghijklmnopqrstuwvxyz")
         end
@@ -1358,15 +1395,15 @@ function library:addTab(name)
             local colorpicker_2 = Instance.new("Frame")
             local button = Instance.new("TextButton")
             local colorFrame = Instance.new("Frame")
-			local colorFrame_2 = Instance.new("Frame")
-			local hueframe = Instance.new("Frame")
-			local main = Instance.new("Frame")
-			local hue = Instance.new("ImageLabel")
-			local pickerframe = Instance.new("Frame")
-			local main_2 = Instance.new("Frame")
-			local picker = Instance.new("ImageLabel")
-			local clr = Instance.new("Frame")
-			local copy = Instance.new("TextButton")
+            local colorFrame_2 = Instance.new("Frame")
+            local hueframe = Instance.new("Frame")
+            local main = Instance.new("Frame")
+            local hue = Instance.new("ImageLabel")
+            local pickerframe = Instance.new("Frame")
+            local main_2 = Instance.new("Frame")
+            local picker = Instance.new("ImageLabel")
+            local clr = Instance.new("Frame")
+            local copy = Instance.new("TextButton")
 
             colorpicker.Name = "colorpicker"
             colorpicker.Parent = grouper
@@ -1413,7 +1450,7 @@ function library:addTab(name)
             mid.BorderColor3 = Color3.fromRGB(60, 60, 60)
             mid.BorderSizePixel = 2
             mid.Size = UDim2.new(1, 0, 1, 0)
-            
+
             front.Name = "front"
             front.Parent = mid
             front.BackgroundColor3 = Color3.fromRGB(240, 142, 214)
@@ -1427,26 +1464,26 @@ function library:addTab(name)
             button.Size = UDim2.new(0, 202, 0, 22)
             button.Font = Enum.Font.SourceSans
             button.Text = ""
-			button.ZIndex = args.ontop and topStuff or jigCount
+            button.ZIndex = args.ontop and topStuff or jigCount
             button.TextColor3 = Color3.fromRGB(0, 0, 0)
             button.TextSize = 14.000
 
-			colorFrame.Name = "colorFrame"
-			colorFrame.Parent = colorpicker
-			colorFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-			colorFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
-			colorFrame.BorderSizePixel = 2
-			colorFrame.Position = UDim2.new(0.101092957, 0, 0.75, 0)
-			colorFrame.Size = UDim2.new(0, 137, 0, 128)
+            colorFrame.Name = "colorFrame"
+            colorFrame.Parent = colorpicker
+            colorFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+            colorFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            colorFrame.BorderSizePixel = 2
+            colorFrame.Position = UDim2.new(0.101092957, 0, 0.75, 0)
+            colorFrame.Size = UDim2.new(0, 137, 0, 128)
 
-			colorFrame_2.Name = "colorFrame"
-			colorFrame_2.Parent = colorFrame
-			colorFrame_2.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-			colorFrame_2.BorderColor3 = Color3.fromRGB(60, 60, 60)
-			colorFrame_2.Size = UDim2.new(1, 0, 1, 0)
+            colorFrame_2.Name = "colorFrame"
+            colorFrame_2.Parent = colorFrame
+            colorFrame_2.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+            colorFrame_2.BorderColor3 = Color3.fromRGB(60, 60, 60)
+            colorFrame_2.Size = UDim2.new(1, 0, 1, 0)
 
-			hueframe.Name = "hueframe"
-			hueframe.Parent = colorFrame_2
+            hueframe.Name = "hueframe"
+            hueframe.Parent = colorFrame_2
             hueframe.BackgroundColor3 = Color3.fromRGB(34, 34, 34)
             hueframe.BorderColor3 = Color3.fromRGB(60, 60, 60)
             hueframe.BorderSizePixel = 2
@@ -1521,7 +1558,7 @@ function library:addTab(name)
             end)
 
             button.MouseButton1Click:Connect(function()
-				colorFrame.Visible = not colorFrame.Visible
+                colorFrame.Visible = not colorFrame.Visible
                 mid.BorderColor3 = Color3.fromRGB(60, 60, 60)
             end)
 
@@ -1533,33 +1570,33 @@ function library:addTab(name)
                 mid.BorderColor3 = Color3.fromRGB(60, 60, 60)
             end)
 
-            local function updateValue(value,fakevalue)
+            local function updateValue(value, fakevalue)
                 if typeof(value) == "table" then value = fakevalue end
                 library.flags[args.flag] = value
                 front.BackgroundColor3 = value
                 if args.callback then
                     args.callback(value)
                 end
-			end
+            end
 
-            local white, black = Color3.new(1,1,1), Color3.new(0,0,0)
-            local colors = {Color3.new(1,0,0),Color3.new(1,1,0),Color3.new(0,1,0),Color3.new(0,1,1),Color3.new(0,0,1),Color3.new(1,0,1),Color3.new(1,0,0)}
+            local white, black = Color3.new(1, 1, 1), Color3.new(0, 0, 0)
+            local colors = { Color3.new(1, 0, 0), Color3.new(1, 1, 0), Color3.new(0, 1, 0), Color3.new(0, 1, 1), Color3.new(0, 0, 1), Color3.new(1, 0, 1), Color3.new(1, 0, 0) }
             local heartbeat = game:GetService("RunService").Heartbeat
 
-            local pickerX,pickerY,hueY = 0,0,0
-            local oldpercentX,oldpercentY = 0,0
+            local pickerX, pickerY, hueY = 0, 0, 0
+            local oldpercentX, oldpercentY = 0, 0
 
             hue.MouseEnter:Connect(function()
                 local input = hue.InputBegan:connect(function(key)
                     if key.UserInputType == Enum.UserInputType.MouseButton1 then
                         while heartbeat:wait() and inputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
                             library.colorpicking = true
-                            local percent = (hueY-hue.AbsolutePosition.Y-36)/hue.AbsoluteSize.Y
-                            local num = math.max(1, math.min(7,math.floor(((percent*7+0.5)*100))/100))
+                            local percent = (hueY - hue.AbsolutePosition.Y - 36) / hue.AbsoluteSize.Y
+                            local num = math.max(1, math.min(7, math.floor(((percent * 7 + 0.5) * 100)) / 100))
                             local startC = colors[math.floor(num)]
                             local endC = colors[math.ceil(num)]
                             local color = white:lerp(picker.BackgroundColor3, oldpercentX):lerp(black, oldpercentY)
-                            picker.BackgroundColor3 = startC:lerp(endC, num-math.floor(num)) or Color3.new(0, 0, 0)
+                            picker.BackgroundColor3 = startC:lerp(endC, num - math.floor(num)) or Color3.new(0, 0, 0)
                             updateValue(color)
                         end
                         library.colorpicking = false
@@ -1577,11 +1614,11 @@ function library:addTab(name)
                     if key.UserInputType == Enum.UserInputType.MouseButton1 then
                         while heartbeat:wait() and inputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
                             library.colorpicking = true
-                            local xPercent = (pickerX-picker.AbsolutePosition.X)/picker.AbsoluteSize.X
-                            local yPercent = (pickerY-picker.AbsolutePosition.Y-36)/picker.AbsoluteSize.Y
+                            local xPercent = (pickerX - picker.AbsolutePosition.X) / picker.AbsoluteSize.X
+                            local yPercent = (pickerY - picker.AbsolutePosition.Y - 36) / picker.AbsoluteSize.Y
                             local color = white:lerp(picker.BackgroundColor3, xPercent):lerp(black, yPercent)
                             updateValue(color)
-                            oldpercentX,oldpercentY = xPercent,yPercent
+                            oldpercentX, oldpercentY = xPercent, yPercent
                         end
                         library.colorpicking = false
                     end
@@ -1598,13 +1635,13 @@ function library:addTab(name)
             end)
 
             picker.MouseMoved:connect(function(x, y)
-                pickerX,pickerY = x,y
+                pickerX, pickerY = x, y
             end)
 
-            table.insert(library.toInvis,colorFrame)
-            library.flags[args.flag] = Color3.new(1,1,1)
-            library.options[args.flag] = {type = "colorpicker",changeState = updateValue,skipflag = args.skipflag,oldargs = args}
-            updateValue(args.color or Color3.new(1,1,1))
+            table.insert(library.toInvis, colorFrame)
+            library.flags[args.flag] = Color3.new(1, 1, 1)
+            library.options[args.flag] = { type = "colorpicker", changeState = updateValue, skipflag = args.skipflag, oldargs = args }
+            updateValue(args.color or Color3.new(1, 1, 1))
         end
 
         function group:addKeybind(args)
@@ -1655,7 +1692,7 @@ function library:addTab(name)
             inputService.InputBegan:Connect(function(key)
                 local key = key.KeyCode == Enum.KeyCode.Unknown and key.UserInputType or key.KeyCode
                 if next then
-                    if not table.find(library.blacklisted,key) then
+                    if not table.find(library.blacklisted, key) then
                         next = false
                         library.flags[args.flag] = key
                         button.Text = keyNames[key] or key.Name
@@ -1671,12 +1708,12 @@ function library:addTab(name)
                 if library.colorpicking then return end
                 library.flags[args.flag] = Enum.KeyCode.Unknown
                 button.Text = "..."
-                button.TextColor3 = Color3.new(0.2,0.2,0.2)
+                button.TextColor3 = Color3.new(0.2, 0.2, 0.2)
                 next = true
             end)
 
             library.flags[args.flag] = Enum.KeyCode.Unknown
-            library.options[args.flag] = {type = "keybind",changeState = updateValue,skipflag = args.skipflag,oldargs = args}
+            library.options[args.flag] = { type = "keybind", changeState = updateValue, skipflag = args.skipflag, oldargs = args }
             updateValue(args.key or Enum.KeyCode.Unknown)
         end
 
@@ -1687,10 +1724,10 @@ function library:addTab(name)
 end
 
 function contains(list, x)
-	for _, v in pairs(list) do
-		if v == x then return true end
-	end
-	return false
+    for _, v in pairs(list) do
+        if v == x then return true end
+    end
+    return false
 end
 
 function getConfigPath(name)
@@ -1706,17 +1743,17 @@ function library:createConfig()
     if not name or name == "" then return library:notify("Please enter a config name") end
 
     local configPath = getConfigPath(name)
-    if isfile(configPath) then 
-        return library:notify("Config already exists!") 
+    if isfile(configPath) then
+        return library:notify("Config already exists!")
     end
 
     local config = {}
-    for i,v in next, library.flags do
+    for i, v in next, library.flags do
         if library.options[i] and not library.options[i].skipflag then
             if typeof(v) == "Color3" then
-                config[i] = {v.R,v.G,v.B}
+                config[i] = { v.R, v.G, v.B }
             elseif typeof(v) == "EnumItem" then
-                config[i] = {string.split(tostring(v),".")[2],string.split(tostring(v),".")[3]}
+                config[i] = { string.split(tostring(v), ".")[2], string.split(tostring(v), ".")[3] }
             else
                 config[i] = v
             end
@@ -1734,12 +1771,12 @@ function library:saveConfig()
 
     local configPath = getConfigPath(name)
     local config = {}
-    for i,v in next, library.flags do
+    for i, v in next, library.flags do
         if library.options[i] and not library.options[i].skipflag then
             if typeof(v) == "Color3" then
-                config[i] = {v.R,v.G,v.B}
+                config[i] = { v.R, v.G, v.B }
             elseif typeof(v) == "EnumItem" then
-                config[i] = {string.split(tostring(v),".")[2],string.split(tostring(v),".")[3]}
+                config[i] = { string.split(tostring(v), ".")[2], string.split(tostring(v), ".")[3] }
             else
                 config[i] = v
             end
@@ -1765,12 +1802,12 @@ function library:loadConfig()
     if not success then
         return library:notify("Failed to load config!")
     end
-    for i,v in next, library.options do
+    for i, v in next, library.options do
         spawn(function()
             pcall(function()
                 if config[i] then
                     if v.type == "colorpicker" then
-                        v.changeState(Color3.new(config[i][1],config[i][2],config[i][3]))
+                        v.changeState(Color3.new(config[i][1], config[i][2], config[i][3]))
                     elseif v.type == "keybind" then
                         v.changeState(Enum[config[i][1]][config[i][2]])
                     else
@@ -1787,7 +1824,7 @@ end
 
 function library:refreshConfigs()
     local configs = {}
-    for _,file in ipairs(listfiles("OsirisCFGS")) do
+    for _, file in ipairs(listfiles("OsirisCFGS")) do
         -- Remove path and .cfg extension
         local name = formatConfigName(file)
         table.insert(configs, name)
@@ -1811,6 +1848,9 @@ function library:deleteConfig()
     end
 end
 
+-- Initialize tabs
+tabs:init(library)
+
 local aimbotTab = library:addTab("Legit")
 local visualsTab = library:addTab("Ragebot")
 local miscTab = library:addTab("Visuals")
@@ -1821,21 +1861,21 @@ local configsettings = configTab:createGroup('left', 'Config Settings')
 local uisettings = configTab:createGroup('right', 'UI Settings')
 local othersettings = configTab:createGroup('right', 'Other')
 
-createconfigs:addTextbox({text = "Name",flag = "config_name"})
-createconfigs:addButton({text = "Load",callback = library.loadConfig})
+createconfigs:addTextbox({ text = "Name", flag = "config_name" })
+createconfigs:addButton({ text = "Load", callback = library.loadConfig })
 
-configsettings:addConfigbox({flag = 'test',values = {}})
-configsettings:addButton({text = "Load",callback = library.loadConfig})
-configsettings:addButton({text = "Update",callback = library.saveConfig})
-configsettings:addButton({text = "Delete",callback = library.deleteConfig})
-configsettings:addButton({text = "Refresh",callback = library.refreshConfigs})
-uisettings:addToggle({text = "Show Game Name",flag = "show game name"})
-uisettings:addTextbox({text = "Menu Title",flag = "menutitle"})
-uisettings:addTextbox({text = "Domain",flag = "menudomain"})
-uisettings:addColorpicker({text = "Domain Accent",ontop = true,flag = "domainaccent",color = Color3.new(1,1,1)})
-uisettings:addColorpicker({text = "Menu Accent",ontop = true,flag = "menuaccent",color = Color3.new(1,1,1)})
+configsettings:addConfigbox({ flag = 'test', values = {} })
+configsettings:addButton({ text = "Load", callback = library.loadConfig })
+configsettings:addButton({ text = "Update", callback = library.saveConfig })
+configsettings:addButton({ text = "Delete", callback = library.deleteConfig })
+configsettings:addButton({ text = "Refresh", callback = library.refreshConfigs })
+uisettings:addToggle({ text = "Show Game Name", flag = "show game name" })
+uisettings:addTextbox({ text = "Menu Title", flag = "menutitle" })
+uisettings:addTextbox({ text = "Domain", flag = "menudomain" })
+uisettings:addColorpicker({ text = "Domain Accent", ontop = true, flag = "domainaccent", color = Color3.new(1, 1, 1) })
+uisettings:addColorpicker({ text = "Menu Accent", ontop = true, flag = "menuaccent", color = Color3.new(1, 1, 1) })
 
-othersettings:addToggle({text = "Show Keybinds",flag = "show game name"})
-configsettings:addButton({text = "Copy Game Invite"})
-configsettings:addButton({text = "Rejoin Server"})
-configsettings:addButton({text = "Server Hop"})
+othersettings:addToggle({ text = "Show Keybinds", flag = "show game name" })
+configsettings:addButton({ text = "Copy Game Invite" })
+configsettings:addButton({ text = "Rejoin Server" })
+configsettings:addButton({ text = "Server Hop" })
