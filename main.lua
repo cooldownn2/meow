@@ -1,4 +1,4 @@
-local loader = loadstring(game:HttpGet('https://raw.githubusercontent.com/cooldownn2/meow/main/loader.lua'))()
+local loader = loadstring(game:HttpGet('https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/loader.lua'))()
 local library = loader:Init()
 
 -- Your UI code goes here
