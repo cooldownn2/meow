@@ -1,15 +1,29 @@
+local inputService = game:GetService("UserInputService")
+local runService = game:GetService("RunService")
+local tweenService = game:GetService("TweenService")
+local players = game:GetService("Players")
+local localPlayer = players.LocalPlayer
+local mouse = localPlayer:GetMouse()
 
-local inputService   = game:GetService("UserInputService")
-local runService     = game:GetService("RunService")
-local tweenService   = game:GetService("TweenService")
-local players        = game:GetService("Players")
-local localPlayer    = players.LocalPlayer
-local mouse          = localPlayer:GetMouse()
+local menu = game:GetObjects("rbxassetid://12705540680")[1]
 
-local menu           = game:GetObjects("rbxassetid://12705540680")[1]
-syn.protect_gui(menu)
-menu.bg.Position     = UDim2.new(0.5,-menu.bg.Size.X.Offset/2,0.5,-menu.bg.Size.Y.Offset/2)
-menu.Parent          = game:GetService("CoreGui")
+-- Handle different exploit environments
+local function protectGui(gui)
+    if syn and syn.protect_gui then
+        syn.protect_gui(gui)
+        gui.Parent = game:GetService("CoreGui")
+    elseif protect_gui then
+        protect_gui(gui)
+        gui.Parent = game:GetService("CoreGui")
+    elseif gethui then
+        gui.Parent = gethui()
+    else
+        gui.Parent = game:GetService("CoreGui")
+    end
+end
+
+protectGui(menu)
+menu.bg.Position = UDim2.new(0.5, -menu.bg.Size.X.Offset/2, 0.5, -menu.bg.Size.Y.Offset/2)
 menu.bg.pre.Text = 'Seere<font color="#4517ff">.vip</font> - fiji was here!!!!'
 
 local library = {cheatname = "";ext = "";gamename = "";colorpicking = false;tabbuttons = {};tabs = {};options = {};flags = {};scrolling = false;notifyText = Drawing.new("Text");playing = false;multiZindex = 200;toInvis = {};libColor = Color3.fromRGB(69, 23, 255);disabledcolor = Color3.fromRGB(233, 0, 0);blacklisted = {Enum.KeyCode.W,Enum.KeyCode.A,Enum.KeyCode.S,Enum.KeyCode.D,Enum.UserInputType.MouseMovement}}
@@ -1275,7 +1289,7 @@ function library:addTab(name)
         
         
             library.flags[args.flag] = ""
-            library.options[args.flag] = {type = "cfg",changeState = updateValue,values = args.values,refresh = refresh,skipflag = args.skipflag,oldargs = args}
+            library.options[args.flag] = {type = "cfg",changeState = updateValue,values = tbl,refresh = refresh,skipflag = args.skipflag,oldargs = args}
         
             refresh(args.values)
             updateValue(args.value or not args.multiselect and args.values[1] or "abcdefghijklmnopqrstuwvxyz")
