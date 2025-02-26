@@ -5,7 +5,8 @@ local success, library = pcall(function()
     local loader = loadstring(loaderSource)()
     assert(loader, "Failed to initialize loader")
     
-    local lib = loader.Init()
+    -- Changed from loader.Init() to loader:Init()
+    local lib = loader:Init()
     assert(lib, "Failed to initialize library")
     
     return lib
@@ -16,30 +17,72 @@ if not success then
     return
 end
 
--- Create tabs first
-local aimbotTab = library:addTab("Legit")
-local visualsTab = library:addTab("Ragebot")
-local miscTab = library:addTab("Visuals")
-local skinTab = library:addTab("Skins")
-local miscTab = library:addTab("Misc")
-local luaTab = library:addTab("Luas")
-local configTab = library:addTab("Settings")
+local library = result
 
--- Then create groups
+-- First show error if library isn't loaded
+if not library then
+    warn("Library failed to initialize!")
+    return
+end
+
+-- Create tabs with error handling
+local function addTab(name)
+    if not library.addTab then
+        warn("Library missing addTab function!")
+        return
+    end
+    return library:addTab(name)
+end
+
+local aimbotTab = addTab("Legit")
+local visualsTab = addTab("Ragebot") 
+local miscTab = addTab("Visuals")
+local skinTab = addTab("Skins")
+local miscTab = addTab("Misc")
+local luaTab = addTab("Luas")
+local configTab = addTab("Settings")
+
+-- Don't continue if config tab failed to create
+if not configTab then
+    warn("Failed to create config tab!")
+    return
+end
+
+-- Create groups with error checking
 local createconfigs = configTab:createGroup('left', 'Create Configs')
 local configsettings = configTab:createGroup('left', 'Config Settings')
 local uisettings = configTab:createGroup('center', 'UI Settings')
 local othersettings = configTab:createGroup('right', 'Other')
 
--- Now add elements to groups
-createconfigs:addTextbox({text = "Name",flag = "config_name"})
-createconfigs:addButton({text = "Create",callback = function() library:createConfig() end})
+-- Now add elements with proper function binding
+createconfigs:addTextbox({text = "Name", flag = "config_name"})
+createconfigs:addButton({text = "Create", callback = function() 
+    if library.createConfig then
+        library:createConfig()
+    end
+end})
 
 configsettings:addConfigbox({flag = 'selected_config',values = {}})
-configsettings:addButton({text = "Load",callback = function() library:loadConfig() end})
-configsettings:addButton({text = "Save",callback = function() library:saveConfig() end})
-configsettings:addButton({text = "Delete",callback = function() library:deleteConfig() end})
-configsettings:addButton({text = "Refresh",callback = function() library:refreshConfigs() end})
+configsettings:addButton({text = "Load",callback = function() 
+    if library.loadConfig then
+        library:loadConfig()
+    end
+end})
+configsettings:addButton({text = "Save",callback = function() 
+    if library.saveConfig then
+        library:saveConfig()
+    end
+end})
+configsettings:addButton({text = "Delete",callback = function() 
+    if library.deleteConfig then
+        library:deleteConfig()
+    end
+end})
+configsettings:addButton({text = "Refresh",callback = function() 
+    if library.refreshConfigs then
+        library:refreshConfigs()
+    end
+end})
 
 uisettings:addToggle({text = "Show Game Name",flag = "show game name"})
 uisettings:addTextbox({text = "Menu Title",flag = "menutitle"})
