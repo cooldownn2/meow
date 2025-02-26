@@ -47,7 +47,15 @@ end
 
 local menu
 do
-    local library = loadstring(readfile("/C:/Users/landa/OneDrive/Documents/GitHub/meow/meow/Library.lua"))()
+    local success, library = pcall(function()
+        return loadstring(game:HttpGet("https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/Library.lua"))()
+    end)
+    
+    if not success then
+        warn("Failed to load library:", library)
+        return
+    end
+
     menu = library.new([[universal <font color="rgb(78, 93, 234)">v1</font>]], "nemv2\\")
     local tabs = {
         menu.new_tab("rbxassetid://7300477598"),
