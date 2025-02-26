@@ -1,41 +1,5 @@
 local loader = {}
 
-function loader:Init()
-    -- Create necessary folders
-    if not isfolder("OsirisCFGS") then
-        makefolder("OsirisCFGS")
-    end
-
-    -- Load each component with error handling
-    local success, mainUI = pcall(function()
-        return loadstring(game:HttpGet('https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/UI.lua'))()
-    end)
-    
-    if not success then
-        warn("Failed to load UI:", mainUI)
-        return
-    end
-
-    local success2, configSystem = pcall(function() 
-        return loadstring(game:HttpGet('https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/ConfigSystem.lua'))()
-    end)
-    
-    if not success2 then
-        warn("Failed to load Config System:", configSystem)
-        return
-    end
-
-    -- Initialize config system
-    if configSystem and configSystem.Init then
-        configSystem:Init(mainUI)
-    else
-        warn("Config system missing Init function")
-        return
-    end
-    
-    return mainUI
-end
-
 function loader:VerifyURLs()
     local urls = {
         UI = 'https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/UI.lua',
@@ -53,6 +17,31 @@ function loader:VerifyURLs()
         end
     end
     return true
+end
+
+function loader:Init()
+    if not self:VerifyURLs() then
+        return warn("URL verification failed")
+    end
+
+    -- Create necessary folders
+    if not isfolder("OsirisCFGS") then
+        makefolder("OsirisCFGS")
+    end
+
+    -- Load main UI first
+    local mainUI = loadstring(game:HttpGet('https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/UI.lua'))()
+    if not mainUI then
+        return warn("Failed to load UI")
+    end
+
+    -- Load config system after UI
+    local configSystem = loadstring(game:HttpGet('https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/ConfigSystem.lua'))()
+    if configSystem then
+        configSystem:Init(mainUI)
+    end
+
+    return mainUI
 end
 
 return loader
