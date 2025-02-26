@@ -40,44 +40,49 @@ function loader:init()
             return
         end
     end
+
+    -- Create empty UI global to allow cross-references
+    _G.Library = {}
     
-    -- Execute UI directly first
-    local success, ui = pcall(function() 
-        local fn = loadstring(files.ui)
-        return fn()  -- Execute UI without custom environment
-    end)
-    if not success then 
-        return log("UI execution failed: " .. tostring(ui)) 
-    end
-    
-    -- Store UI reference
-    self.ui = ui
-    _G.Library = ui
-    
-    -- Execute remaining modules
+    -- Execute modules in order
     local success, utils = pcall(loadstring(files.utils))
     if not success then return log("Utils execution failed: " .. tostring(utils)) end
-    self.utils = utils
     
     local success, config = pcall(loadstring(files.config))
     if not success then return log("Config execution failed: " .. tostring(config)) end
-    self.config = config
     
     local success, tabs = pcall(loadstring(files.tabs))
     if not success then return log("Tabs execution failed: " .. tostring(tabs)) end
+    
+    -- Execute UI last since it depends on other modules
+    local success, ui = pcall(function()
+        local fn = loadstring(files.ui)
+        return fn()
+    end)
+    if not success then return log("UI execution failed: " .. tostring(ui)) end
+
+    -- Store all modules
+    self.ui = ui
+    self.utils = utils
+    self.config = config 
     self.tabs = tabs
     
-    -- Initialize modules after UI is loaded
-    if self.utils then ui.utils = self.utils end
-    if self.config then 
-        ui.config = self.config
-        self.config:init(ui)
-    end
-    if self.tabs then
-        ui.tabs = self.tabs 
-        self.tabs:init(ui)
-    end
+    -- Update global reference
+    _G.Library = ui
     
+    -- Initialize modules in correct order
+    log("Initializing modules...")
+    
+    -- Initialize UI first
+    ui.utils = utils
+    ui.config = config
+    ui.tabs = tabs
+    
+    -- Then initialize supporting modules
+    if config and config.init then config:init(ui) end
+    if tabs and tabs.init then tabs:init(ui) end
+    
+    log("Initialization complete")
     return ui
 end
 
