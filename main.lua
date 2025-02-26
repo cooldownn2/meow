@@ -1,5 +1,21 @@
-local loader = loadstring(game:HttpGet('https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/loader.lua'))()
-local library = loader:Init()
+local success, result = pcall(function()
+    local loaderSource = game:HttpGet('https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/loader.lua')
+    local loader = loadstring(loaderSource)()
+    assert(loader, "Loader failed to load")
+    assert(type(loader.Init) == "function", "Loader missing Init function")
+    
+    local library = loader.Init()
+    assert(library, "Library failed to initialize")
+    
+    return library
+end)
+
+if not success then
+    warn("Failed to initialize:", result)
+    return
+end
+
+local library = result
 
 -- Your UI code goes here
 local aimbotTab = library:addTab("Legit")
