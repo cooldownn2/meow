@@ -41,64 +41,44 @@ function loader:init()
         end
     end
     
-    -- Execute files with proper environment setup
-    local env = getfenv()
-    env.require = function(module)
-        if module == "utils" then
-            return self.utils
-        elseif module == "config" then
-            return self.config
-        elseif module == "tabs" then
-            return self.tabs
-        end
+    -- Execute UI directly first
+    local success, ui = pcall(function() 
+        local fn = loadstring(files.ui)
+        return fn()  -- Execute UI without custom environment
+    end)
+    if not success then 
+        return log("UI execution failed: " .. tostring(ui)) 
     end
     
-    -- Load modules in order
-    local success, utils = pcall(function() 
-        local fn = loadstring(files.utils)
-        setfenv(fn, env)
-        return fn()
-    end)
+    -- Store UI reference
+    self.ui = ui
+    _G.Library = ui
+    
+    -- Execute remaining modules
+    local success, utils = pcall(loadstring(files.utils))
     if not success then return log("Utils execution failed: " .. tostring(utils)) end
     self.utils = utils
     
-    local success, ui = pcall(function() 
-        local fn = loadstring(files.ui)
-        setfenv(fn, env)
-        return fn()
-    end)
-    if not success then return log("UI execution failed: " .. tostring(ui)) end
-    self.ui = ui
-    
-    local success, config = pcall(function()
-        local fn = loadstring(files.config)
-        setfenv(fn, env)
-        return fn()
-    end)
+    local success, config = pcall(loadstring(files.config))
     if not success then return log("Config execution failed: " .. tostring(config)) end
     self.config = config
     
-    local success, tabs = pcall(function()
-        local fn = loadstring(files.tabs)
-        setfenv(fn, env)
-        return fn()
-    end)
+    local success, tabs = pcall(loadstring(files.tabs))
     if not success then return log("Tabs execution failed: " .. tostring(tabs)) end
     self.tabs = tabs
     
-    -- Store UI globally
-    _G.Library = self.ui
-    
-    -- Initialize modules
-    if self.config then self.config:init(self.ui) end
-    if self.tabs then self.tabs:init(self.ui) end
-    if self.ui then
-        self.ui.config = self.config
-        self.ui.tabs = self.tabs
-        self.ui.utils = self.utils
+    -- Initialize modules after UI is loaded
+    if self.utils then ui.utils = self.utils end
+    if self.config then 
+        ui.config = self.config
+        self.config:init(ui)
+    end
+    if self.tabs then
+        ui.tabs = self.tabs 
+        self.tabs:init(ui)
     end
     
-    return self.ui
+    return ui
 end
 
 return loader
