@@ -145,420 +145,393 @@ local PuppyModule = {
     Instance = {}
 }
 
-local UI = {}
-local lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/lib.lua"))()
-local NotifyLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/notify.lua"))()
+local UI = require(game:GetService("ReplicatedStorage"):WaitForChild("UI"))
 
--- Load required libraries safely
-local function loadLibrary(url)
-    local success, result = pcall(function()
-        return loadstring(game:HttpGet(url))()
+local Window = UI.new({title = "SPICE", accent = Color3.fromRGB(244, 95, 115), size = UDim2.new(0, 500, 0, 600)})
+local AimingTab = Window:page({name = "Legit"})
+local RageTab = Window:page({name = "Rage"})
+local VisualTab = Window:page({name = "Visauls"})
+local MiscTab = Window:page({name = "Misc"})
+
+local SAimSection = AimingTab:section({name = "Silent Aim", side = "left",size = 320})
+
+local AAMainSection = RageTab:section({name = "Main", side = "left", size = 200})
+local AASettings = RageTab:section({name = "Settings", side = "right", size = 200})
+
+local VisualMainSection = VisualTab:section({name = "Main",side = "left", size = 200})
+
+local MiscMoveSettings = MiscTab:section({name = "Movement Cheats",side = "left", size = 200})
+local MiscToolSettings = MiscTab:section({name = "Tool Cheats",side = "left", size = 50})
+local MiscCharSettings = MiscTab:section({name = "Character Cheats",side = "left", size = 50})
+local MiscNorSettings = MiscTab:section({name = "Normal Cheats",side = "left", size = 100})
+
+local ConfigSection = MiscTab:section({name = "Config",side = "right", size = 250})
+local ConfigLoader = ConfigSection:configloader({folder = "coolwhat"})
+
+SAimSection:toggle({name = "Silent Aim Enabled", def = false, callback = function(Boolean)
+    PuppySettings.SilentAim.Enabled = Boolean
+end})
+
+SAimSection:toggle({name = "Use FOV", def = false, callback = function(Boolean)
+    PuppySettings.SilentAim.UseFOV = Boolean
+end})
+
+ SAimSection:toggle({name = "Show FOV", def = false, callback = function(Boolean)
+    PuppySettings.SilentAim.ShowFOV = Boolean
+end})
+
+SAimSection:colorpicker({name = "Dot Color", cpname = "", def = Color3.new(0.603921, 0.011764, 1), callback = function(color)
+    PuppySettings.SilentAim.DOTColor = color
+end})
+
+SAimSection:toggle({name = "Wall Check", def = false, callback = function(Boolean)
+    PuppySettings.SilentAim.WallCheck = Boolean
+end})
+
+SAimSection:toggle({name = "Knocked Check", def = false, callback = function(Boolean)
+    PuppySettings.SilentAim.KnockedCheck = Boolean
+end})
+
+SAimSection:toggle({name = "Grabbed Check", def = false, callback = function(Boolean)
+    PuppySettings.SilentAim.GrabbedCheck = Boolean
+end})
+
+SAimSection:toggle({name = "Blatant Mode", def = false, callback = function(Boolean)
+    PuppySettings.SilentAim.ShowHitbox = Boolean
+end})
+
+SAimSection:toggle({name = "Notification Mode", def = false, callback = function(Boolean)
+    PuppySettings.SilentAim.NotificationMode = Boolean
+end})
+
+SAimSection:toggle({name = "Hit Airshots", def = false, callback = function(Boolean)
+    PuppySettings.SilentAim.AirShotMode = Boolean
+end})
+
+SAimSection:toggle({name = "Use Nearest Distance", def = false, callback = function(Boolean)
+    PuppySettings.SilentAim.UseNearestDistance = Boolean
+end})
+
+SAimSection:dropdown({name = "Hitbox", def = "HumanoidRootPart", max = 4, options = {"Head","UpperTorso","HumanoidRootPart"}, callback = function(part)
+    PuppySettings.SilentAim.Hitboxes = part
+end})
+
+SAimSection:toggle({name = "Random Hitbox", def = false, callback = function(Boolean)
+    PuppySettings.SilentAim.RandomHitbox = Boolean
+end})
+
+-- Aimbot Section --
+local AimbotSection = AimingTab:section({name = "AimBot", side = "right",size = 113})
+AimbotSection:toggle({name = "Aimbot Enabled", def = false, callback = function(Boolean)
+    PuppySettings.Aimbot.Enabled = Boolean
+end})
+
+AimbotSection:toggle({name = "Prediction", def = false, callback = function(Boolean)
+    PuppySettings.Aimbot.Prediction = Boolean
+end})
+
+AimbotSection:dropdown({name = "Aim Hitbox", def = "HumanoidRootPart", max = 4, options = {"Head","UpperTorso","HumanoidRootPart"}, callback = function(part)
+    PuppySettings.Aimbot.Hitboxes = part
+end})
+
+-- Silent FOV Section --
+local AimbotFOVSection = AimingTab:section({name = "FOV", side = "right",size = 150})
+AimbotFOVSection:toggle({name = "FOV Filled", def = false, callback = function(Boolean)
+    PuppySettings.FOV.FOVFilled = Boolean
+end})
+
+AimbotFOVSection:slider({name = "Silent FOV Size", def = 100, max = 500, min = 10, rounding = true, callback = function(Value)
+    PuppySettings.FOV.SilentAimSize = Value
+end})
+
+AimbotFOVSection:slider({name = "Silent FOV Transparency", def = 9, max = 9, min = 1, rounding = true, callback = function(Value)
+    PuppySettings.FOV.Transparency = tonumber("0." .. Value)
+end})
+
+AimbotFOVSection:slider({name = "FOV Thickness", def = 2, max = 10, min = 1, rounding = true, callback = function(Value)
+    PuppySettings.FOV.Thickness = Value
+end})
+
+AimbotFOVSection:colorpicker({name = "FOV Color", cpname = "", def = Color3.new(0.603921, 0.011764, 1), callback = function(color)
+    PuppySettings.SilentAim.FOVColor = color
+end})
+
+-- Aimbot Settings Section --
+
+local AimbotSettings = AimingTab:section({name = "Aimbot Settings", side = "right",size = 150})
+
+AimbotSettings:dropdown({name = "Aim Assist Type", def = "Camera", max = 4, options = {"Camera","Mouse",}, callback = function(part)
+    PuppySettings.AimbotSettings.Mode = part
+end})
+
+AimbotSettings:toggle({name = "Smoothness", def = false, callback = function(Boolean)
+    PuppySettings.AimbotSettings.Smoothness = Boolean
+end})
+
+AimbotSettings:slider({name = "Smoothness Ammount", def = 2, max = 10, min = 1, rounding = true, callback = function(Value)
+    PuppySettings.AimbotSettings.SmoothnessAmmount = Value
+end})
+
+AimbotSettings:slider({name = "Prediction Velocity", def = 10, max = 60, min = 10, rounding = true, callback = function(Value)
+    PuppySettings.AimbotSettings.PredictionVelocity = Value
+end})
+
+-- Silent Aim Settings Section --
+local SilentAimSettings = AimingTab:section({name = "Silent Aim Settings", side = "left",size = 130})
+
+SilentAimSettings:toggle({name = "Hit Chance", def = false, callback = function(Boolean)
+    PuppySettings.SilentAimSettings.HitChance = Boolean
+end})
+
+SilentAimSettings:toggle({name = "Ping Prediction (1)", def = false, callback = function(Boolean)
+    PuppySettings.SilentAimSettings.PingPred1 = Boolean
+end})
+
+SilentAimSettings:toggle({name = "Ping Prediction (2)", def = false, callback = function(Boolean)
+    PuppySettings.SilentAimSettings.PingPred2 = Boolean
+end})
+
+SilentAimSettings:slider({name = "Hit Chnace Amm", def = 100, max = 100, min = 0, rounding = true, callback = function(Value)
+    PuppySettings.SilentAimSettings.HitChanceAmount.HitPercent = tonumber(Value)
+    PuppySettings.SilentAimSettings.HitChanceAmount.NotHitPercent = tonumber(100 - PuppySettings.SilentAimSettings.HitChanceAmount.HitPercent)
+end})
+
+-- Trigger Bot Section -- 
+local TriggerbotSection = AimingTab:section({name = "Trigger Bot", side = "right",size = 80})
+
+TriggerbotSection:toggle({name = "Trigger Bot Enabled", def = false, callback = function(Boolean)
+ PuppySettings.TriggerBot.Enabled = Boolean
+end})
+
+TriggerbotSection:slider({name = "Delay (Ammount)", def = 0, max = 60, min = 0, rounding = true, callback = function(Value)
+ PuppySettings.TriggerBot.DelayAmount = Value
+end})
+
+-- Anti Aim Section --
+
+AAMainSection:toggle({name = "Anti Aim Enabled", def = false, callback = function(Boolean)
+    PuppySettings.AntiAim.Enabled = Boolean
+end})
+
+AAMainSection:toggle({name = "Desync AA Enabled", def = false, callback = function(Boolean)
+    PuppySettings.AntiAim.Desync = Boolean
+end})
+
+AAMainSection:toggle({name = "Legit AA Enabled", def = false, callback = function(Boolean)
+    PuppySettings.AntiAim.Legit = Boolean
+end})
+
+AAMainSection:button({name = "Hitbox Destroyer", callback = function()
+ game.Players.LocalPlayer.Character.Head:BreakJoints()
+    game.Players.LocalPlayer.Character.Head.Position = Vector3.new(0,999999999999,0)
+    game.Players.LocalPlayer.Character.Parent = nil
+    game.Players.LocalPlayer.Character.HumanoidRootPart:Destroy()
+    game.Players.LocalPlayer.Character.Parent = game.workspace
+    local A = getrawmetatable(game)
+    local B = A.__index
+    setreadonly(A, false)
+ A.__index = newcclosure(function(self, key)
+  if self == game:GetService("Players").LocalPlayer.Character and key == "HumanoidRootPart" then
+   return game:GetService("Players").LocalPlayer.Character.UpperTorso
+        end
+  return B(self, key)
     end)
-    if not success then
-        warn("[SPICE ERROR] Failed to load library: " .. tostring(result))
-        return nil
+ game.Players.LocalPlayer.Character.RightUpperLeg:Destroy()
+    game.Players.LocalPlayer.Character.LeftUpperLeg:Destroy()
+end})
+
+AAMainSection:toggle({name = "BackTracking", def = false, callback = function(Boolean)
+    PuppySettings.BackTracking.Enabled = Boolean
+end})
+
+AAMainSection:toggle({name = "Auto Peak", def = false, callback = function(Boolean)
+    PuppySettings.AutoPeak.Enabled = Boolean
+end})
+
+AASettings:slider({name = "Desync Velocity", def = 500, max = 1000, min = 0, rounding = true, callback = function(Value)
+ PuppySettings.AntiAim.DesyncValues.Velocity = tonumber(Value)
+end})
+
+AASettings:slider({name = "Desync CFrame", def = 500, max = 1000, min = 0, rounding = true, callback = function(Value)
+ PuppySettings.AntiAim.DesyncValues.CFrame = tonumber(Value)
+end})
+
+AASettings:keybind({name = "Legit AA Keybind", def = Enum.KeyCode.Z, callback = function(Key)
+ PuppySettings.AntiAim.LegitAAKey = Key
+end})
+
+AASettings:keybind({name = "Auto Peak Keybind", def = Enum.KeyCode.N, callback = function(Key)
+ PuppySettings.AutoPeak.APKey = Key
+end})
+
+AAMainSection:toggle({name = "+60 FPS", def = false, callback = function(Boolean)
+    PuppySettings.AntiAim.FPSUnlocked = Boolean
+end})
+
+--// Visual Sections
+VisualMainSection:toggle({name = "ESP Enabled", def = false, callback = function(Boolean)
+ PuppySettings.Esp.Enabled = Boolean
+end})
+
+VisualMainSection:toggle({name = "Show Bones", def = false, callback = function(Boolean)
+ PuppySettings.Esp.Bones = Boolean
+end})
+
+--// Misc Sections
+local TimeTick
+TimeTick = hookfunction(wait, function(JumpCooldown)
+ if JumpCooldown == 1.5 and (PuppySettings.Misc.CFrameSpeed.Bhop and PuppySettings.Misc.CFrameSpeed.Enabled) or PuppySettings.Misc.Strafe then 
+  return TimeTick()
     end
-    return result
-end
-
--- Initialize core libraries
-local UI = {}
-local lib = loadLibrary("https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/lib.lua")
-local NotifyLib = loadLibrary("https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/notify.lua")
-
-if not lib then
-    warn("[SPICE ERROR] Failed to load main library")
-    return
-end
-
--- Create window function
-function UI.new(config)
-    if not lib then return end
-    
-    local success, window = pcall(function()
-        return lib:CreateWindow({
-            Name = config.name or "SPICE",
-            LoadingTitle = config.title or "SPICE Interface Suite",
-            LoadingSubtitle = config.subtitle or "by cooldown",
-            ConfigurationSaving = {
-                Enabled = true,
-                FolderName = "SPICE",
-                FileName = "Config"
-            }
-        })
-    end)
-
-    if not success then
-        warn("[SPICE ERROR] Failed to create window: " .. tostring(window))
-        return nil
-    end
-
-    return window
-end
-
-return UI
-
-local success, errorMsg = pcall(function()
-    local Window = UI:new({
-        name = "SPICE",
-    SAimSection:colorpicker({name = "Dot Color", cpname = "", def = Color3.new(0.603921, 0.011764, 1), callback = function(color)
-        PuppySettings.SilentAim.DOTColor = color
-    end})
-
-    SAimSection:toggle({name = "Wall Check", def = false, callback = function(Boolean)
-        PuppySettings.SilentAim.WallCheck = Boolean
-    end})
-
-    SAimSection:toggle({name = "Knocked Check", def = false, callback = function(Boolean)
-        PuppySettings.SilentAim.KnockedCheck = Boolean
-    end})
-
-    SAimSection:toggle({name = "Grabbed Check", def = false, callback = function(Boolean)
-        PuppySettings.SilentAim.GrabbedCheck = Boolean
-    end})
-
-    SAimSection:toggle({name = "Blatant Mode", def = false, callback = function(Boolean)
-        PuppySettings.SilentAim.ShowHitbox = Boolean
-    end})
-
-    SAimSection:toggle({name = "Notification Mode", def = false, callback = function(Boolean)
-        PuppySettings.SilentAim.NotificationMode = Boolean
-    end})
-
-    SAimSection:toggle({name = "Hit Airshots", def = false, callback = function(Boolean)
-        PuppySettings.SilentAim.AirShotMode = Boolean
-    end})
-
-    SAimSection:toggle({name = "Use Nearest Distance", def = false, callback = function(Boolean)
-        PuppySettings.SilentAim.UseNearestDistance = Boolean
-    end})
-
-    SAimSection:dropdown({name = "Hitbox", def = "HumanoidRootPart", max = 4, options = {"Head","UpperTorso","HumanoidRootPart"}, callback = function(part)
-        PuppySettings.SilentAim.Hitboxes = part
-    end})
-
-    SAimSection:toggle({name = "Random Hitbox", def = false, callback = function(Boolean)
-        PuppySettings.SilentAim.RandomHitbox = Boolean
-    end})
-
-    -- Aimbot Section --
-    local AimbotSection = AimingTab:section({name = "AimBot", side = "right",size = 113})
-    AimbotSection:toggle({name = "Aimbot Enabled", def = false, callback = function(Boolean)
-        PuppySettings.Aimbot.Enabled = Boolean
-    end})
-
-    AimbotSection:toggle({name = "Prediction", def = false, callback = function(Boolean)
-        PuppySettings.Aimbot.Prediction = Boolean
-    end})
-
-    AimbotSection:dropdown({name = "Aim Hitbox", def = "HumanoidRootPart", max = 4, options = {"Head","UpperTorso","HumanoidRootPart"}, callback = function(part)
-        PuppySettings.Aimbot.Hitboxes = part
-    end})
-
-    -- Silent FOV Section --
-    local AimbotFOVSection = AimingTab:section({name = "FOV", side = "right",size = 150})
-    AimbotFOVSection:toggle({name = "FOV Filled", def = false, callback = function(Boolean)
-        PuppySettings.FOV.FOVFilled = Boolean
-    end})
-
-    AimbotFOVSection:slider({name = "Silent FOV Size", def = 100, max = 500, min = 10, rounding = true, callback = function(Value)
-        PuppySettings.FOV.SilentAimSize = Value
-    end})
-
-    AimbotFOVSection:slider({name = "Silent FOV Transparency", def = 9, max = 9, min = 1, rounding = true, callback = function(Value)
-        PuppySettings.FOV.Transparency = tonumber("0." .. Value)
-    end})
-
-    AimbotFOVSection:slider({name = "FOV Thickness", def = 2, max = 10, min = 1, rounding = true, callback = function(Value)
-        PuppySettings.FOV.Thickness = Value
-    end})
-
-    AimbotFOVSection:colorpicker({name = "FOV Color", cpname = "", def = Color3.new(0.603921, 0.011764, 1), callback = function(color)
-        PuppySettings.SilentAim.FOVColor = color
-    end})
-
-    -- Aimbot Settings Section --
-
-    local AimbotSettings = AimingTab:section({name = "Aimbot Settings", side = "right",size = 150})
-
-    AimbotSettings:dropdown({name = "Aim Assist Type", def = "Camera", max = 4, options = {"Camera","Mouse",}, callback = function(part)
-        PuppySettings.AimbotSettings.Mode = part
-    end})
-
-    AimbotSettings:toggle({name = "Smoothness", def = false, callback = function(Boolean)
-        PuppySettings.AimbotSettings.Smoothness = Boolean
-    end})
-
-    AimbotSettings:slider({name = "Smoothness Ammount", def = 2, max = 10, min = 1, rounding = true, callback = function(Value)
-        PuppySettings.AimbotSettings.SmoothnessAmmount = Value
-    end})
-
-    AimbotSettings:slider({name = "Prediction Velocity", def = 10, max = 60, min = 10, rounding = true, callback = function(Value)
-        PuppySettings.AimbotSettings.PredictionVelocity = Value
-    end})
-
-    -- Silent Aim Settings Section --
-    local SilentAimSettings = AimingTab:section({name = "Silent Aim Settings", side = "left",size = 130})
-
-    SilentAimSettings:toggle({name = "Hit Chance", def = false, callback = function(Boolean)
-        PuppySettings.SilentAimSettings.HitChance = Boolean
-    end})
-
-    SilentAimSettings:toggle({name = "Ping Prediction (1)", def = false, callback = function(Boolean)
-        PuppySettings.SilentAimSettings.PingPred1 = Boolean
-    end})
-
-    SilentAimSettings:toggle({name = "Ping Prediction (2)", def = false, callback = function(Boolean)
-        PuppySettings.SilentAimSettings.PingPred2 = Boolean
-    end})
-
-    SilentAimSettings:slider({name = "Hit Chnace Amm", def = 100, max = 100, min = 0, rounding = true, callback = function(Value)
-        PuppySettings.SilentAimSettings.HitChanceAmount.HitPercent = tonumber(Value)
-        PuppySettings.SilentAimSettings.HitChanceAmount.NotHitPercent = tonumber(100 - PuppySettings.SilentAimSettings.HitChanceAmount.HitPercent)
-    end})
-
-    -- Trigger Bot Section -- 
-    local TriggerbotSection = AimingTab:section({name = "Trigger Bot", side = "right",size = 80})
-
-    TriggerbotSection:toggle({name = "Trigger Bot Enabled", def = false, callback = function(Boolean)
-        PuppySettings.TriggerBot.Enabled = Boolean
-    end})
-
-    TriggerbotSection:slider({name = "Delay (Ammount)", def = 0, max = 60, min = 0, rounding = true, callback = function(Value)
-        PuppySettings.TriggerBot.DelayAmount = Value
-    end})
-
-    -- Anti Aim Section --
-
-    AAMainSection:toggle({name = "Anti Aim Enabled", def = false, callback = function(Boolean)
-        PuppySettings.AntiAim.Enabled = Boolean
-    end})
-
-    AAMainSection:toggle({name = "Desync AA Enabled", def = false, callback = function(Boolean)
-        PuppySettings.AntiAim.Desync = Boolean
-    end})
-
-    AAMainSection:toggle({name = "Legit AA Enabled", def = false, callback = function(Boolean)
-        PuppySettings.AntiAim.Legit = Boolean
-    end})
-
-    AAMainSection:button({name = "Hitbox Destroyer", callback = function()
-        game.Players.LocalPlayer.Character.Head:BreakJoints()
-        game.Players.LocalPlayer.Character.Head.Position = Vector3.new(0,999999999999,0)
-        game.Players.LocalPlayer.Character.Parent = nil
-        game.Players.LocalPlayer.Character.HumanoidRootPart:Destroy()
-        game.Players.LocalPlayer.Character.Parent = game.workspace
-        local A = getrawmetatable(game)
-        local B = A.__index
-        setreadonly(A, false)
-        A.__index = newcclosure(function(self, key)
-            if self == game:GetService("Players").LocalPlayer.Character and key == "HumanoidRootPart" then
-                return game:GetService("Players").LocalPlayer.Character.UpperTorso
-            end
-            return B(self, key)
-        end)
-        game.Players.LocalPlayer.Character.RightUpperLeg:Destroy()
-        game.Players.LocalPlayer.Character.LeftUpperLeg:Destroy()
-    end})
-
-    AAMainSection:toggle({name = "BackTracking", def = false, callback = function(Boolean)
-        PuppySettings.BackTracking.Enabled = Boolean
-    end})
-
-    AAMainSection:toggle({name = "Auto Peak", def = false, callback = function(Boolean)
-        PuppySettings.AutoPeak.Enabled = Boolean
-    end})
-
-    AASettings:slider({name = "Desync Velocity", def = 500, max = 1000, min = 0, rounding = true, callback = function(Value)
-        PuppySettings.AntiAim.DesyncValues.Velocity = tonumber(Value)
-    end})
-
-    AASettings:slider({name = "Desync CFrame", def = 500, max = 1000, min = 0, rounding = true, callback = function(Value)
-        PuppySettings.AntiAim.DesyncValues.CFrame = tonumber(Value)
-    end})
-
-    AASettings:keybind({name = "Legit AA Keybind", def = Enum.KeyCode.Z, callback = function(Key)
-        PuppySettings.AntiAim.LegitAAKey = Key
-    end})
-
-    AASettings:keybind({name = "Auto Peak Keybind", def = Enum.KeyCode.N, callback = function(Key)
-        PuppySettings.AutoPeak.APKey = Key
-    end})
-
-    AAMainSection:toggle({name = "+60 FPS", def = false, callback = function(Boolean)
-        PuppySettings.AntiAim.FPSUnlocked = Boolean
-    end})
-
-    --// Visual Sections
-    VisualMainSection:toggle({name = "ESP Enabled", def = false, callback = function(Boolean)
-        PuppySettings.Esp.Enabled = Boolean
-    end})
-
-    VisualMainSection:toggle({name = "Show Bones", def = false, callback = function(Boolean)
-        PuppySettings.Esp.Bones = Boolean
-    end})
-
-    --// Misc Sections
-    local TimeTick
-    TimeTick = hookfunction(wait, function(JumpCooldown)
-        if JumpCooldown == 1.5 and (PuppySettings.Misc.CFrameSpeed.Bhop and PuppySettings.Misc.CFrameSpeed.Enabled) or PuppySettings.Misc.Strafe then 
-            return TimeTick()
-        end
-        return TimeTick(JumpCooldown)
-    end)
-
-    MiscMoveSettings:toggle({name = "CFrame Speed", def = false, callback = function(Boolean)
-        PuppySettings.Misc.CFrameSpeed.Enabled = Boolean
-    end})
-
-    MiscMoveSettings:toggle({name = "Bhop", def = false, callback = function(Boolean)
-        PuppySettings.Misc.CFrameSpeed.Bhop = Boolean
-    end})
-
-    MiscMoveSettings:keybind({name = "CFrame Keybind", def = Enum.KeyCode.V, callback = function(Key)
-        PuppySettings.Misc.CFrameSpeed.Keybind = Key
-    end})
-
-    MiscMoveSettings:slider({name = "CFrame Value", def = 100, max = 1000, min = 0, rounding = true, callback = function(Value)
-        PuppySettings.Misc.CFrameSpeed.Speed = tonumber(Value)/100
-    end})
-
-    MiscMoveSettings:toggle({name = "Strafe Jump", def = false, callback = function(Boolean)
-        PuppySettings.Misc.Strafe = Boolean
-    end})
-
-    MiscMoveSettings:button({name = "Fly (X)", callback = function()
-        local mouse = game.Players.LocalPlayer:GetMouse()
-        localplayer = game.Players.LocalPlayer
-        if workspace:FindFirstChild("Core") then
-            workspace.Core:Destroy()
-        end
-        local Core = Instance.new("Part")
-        Core.Name = "Core"
-        Core.Size = Vector3.new(0.05, 0.05, 0.05)
-        spawn(function()
-            Core.Parent = workspace
-            local Weld = Instance.new("Weld", Core)
-            Weld.Part0 = Core
-            Weld.Part1 = localplayer.Character.LowerTorso
-            Weld.C0 = CFrame.new(0, 0, 0)
-        end)
-        workspace:WaitForChild("Core")
-        local torso = workspace.Core
-        flying = true
-        local speed=10
-        local keys={a=false,d=false,w=false,s=false}
-        local e1
-        local e2
-        local function start()
-            local pos = Instance.new("BodyPosition",torso)
-            local gyro = Instance.new("BodyGyro",torso)
-            pos.Name="EPIXPOS"
-            pos.maxForce = Vector3.new(math.huge, math.huge, math.huge)
-            pos.position = torso.Position
-            gyro.maxTorque = Vector3.new(9e9, 9e9, 9e9)
-            gyro.cframe = torso.CFrame
-            repeat wait() localplayer.Character.Humanoid.PlatformStand = true
-                local new=gyro.cframe - gyro.cframe.p + pos.position
-                if not keys.w and not keys.s and not keys.a and not keys.d then
-                    speed=5
-                end
-                if keys.w then
-                    new = new + workspace.CurrentCamera.CoordinateFrame.lookVector * speed
-                    speed=speed+0
-                end
-                if keys.s then
-                    new = new - workspace.CurrentCamera.CoordinateFrame.lookVector * speed
-                    speed=speed+0
-                end
-                if keys.d then
-                    new = new * CFrame.new(speed,0,0)
-                    speed=speed+0
-                end
-                if keys.a then
-                    new = new * CFrame.new(-speed,0,0)
-                    speed=speed+0
-                end
-                if speed>10 then
-                    speed=5
-                end
-                pos.position=new.p
-                if keys.w then
-                    gyro.cframe = workspace.CurrentCamera.CoordinateFrame*CFrame.Angles(-math.rad(speed*0),0,0)
-                elseif keys.s then
-                    gyro.cframe = workspace.CurrentCamera.CoordinateFrame*CFrame.Angles(math.rad(speed*0),0,0)
-                else
-                    gyro.cframe = workspace.CurrentCamera.CoordinateFrame
-                end
-            until flying == false
-            if gyro then gyro:Destroy() end
-            if pos then pos:Destroy() end
-            flying=false
-            localplayer.Character.Humanoid.PlatformStand=false
-            speed=10
-        end
-        e1=mouse.KeyDown:connect(function(key)
-            if not torso or not torso.Parent then flying=false e1:disconnect() e2:disconnect() return end
-            if key=="w" then
-                keys.w=true
-            elseif key=="s" then
-                keys.s=true
-            elseif key=="a" then
-                keys.a=true
-            elseif key=="d" then
-                keys.d=true
-            elseif key=="x" then
-                if flying==true then
-                    flying=false
-                else
-                    flying=true
-                    start()
-                end
-            end
-        end)
-        e2=mouse.KeyUp:connect(function(key)
-            if key=="w" then
-                keys.w=false
-            elseif key=="s" then
-                keys.s=false
-            elseif key=="a" then
-                keys.a=false
-            elseif key=="d" then
-                keys.d=false
-            end
-        end)
-        start()
-    end})
-
-    MiscMoveSettings:toggle({name = "Antislow", def = false, callback = function(Boolean)
-        PuppySettings.Misc.Antislow = Boolean 
-    end})
-
-    -- MiscToolSettings
-    MiscToolSettings:button({name = "ForceField Gun (hold gun)", callback = function()
-        Game.GetService(game, "Players").LocalPlayer.Character:FindFirstChildOfClass("Tool").Default.Material = Enum.Material.ForceField
-    end})
-
-    -- Misc Char
-    MiscCharSettings:button({name = "Nil Char", callback = function()
-        NilBody()
-    end})
-
-    MiscNorSettings:toggle({name = "AutoClicker", def = false, callback = function(Boolean)
-        PuppySettings.AutoClicker.Enabled = Boolean 
-    end})
-
-    MiscNorSettings:keybind({name = "AutoClicker Keybind", def = Enum.KeyCode.B, callback = function(Key)
-        PuppySettings.AutoClicker.Keybind = Key
-    end})
-
-    AimingTab:openpage()
+    return TimeTick(JumpCooldown)
 end)
 
-if not success then
-    warn("[SPICE ERROR] Failed to initialize UI: " .. errorMsg)
-    return
-end
+MiscMoveSettings:toggle({name = "CFrame Speed", def = false, callback = function(Boolean)
+ PuppySettings.Misc.CFrameSpeed.Enabled = Boolean
+end})
+
+MiscMoveSettings:toggle({name = "Bhop", def = false, callback = function(Boolean)
+ PuppySettings.Misc.CFrameSpeed.Bhop = Boolean
+end})
+
+MiscMoveSettings:keybind({name = "CFrame Keybind", def = Enum.KeyCode.V, callback = function(Key)
+ PuppySettings.Misc.CFrameSpeed.Keybind = Key
+end})
+
+MiscMoveSettings:slider({name = "CFrame Value", def = 100, max = 1000, min = 0, rounding = true, callback = function(Value)
+ PuppySettings.Misc.CFrameSpeed.Speed = tonumber(Value)/100
+end})
+
+MiscMoveSettings:toggle({name = "Strafe Jump", def = false, callback = function(Boolean)
+ PuppySettings.Misc.Strafe = Boolean
+end})
+
+MiscMoveSettings:button({name = "Fly (X)", callback = function()
+ local mouse = game.Players.LocalPlayer:GetMouse()
+ localplayer = game.Players.LocalPlayer
+ if workspace:FindFirstChild("Core") then
+  workspace.Core:Destroy()
+ end
+ local Core = Instance.new("Part")
+ Core.Name = "Core"
+ Core.Size = Vector3.new(0.05, 0.05, 0.05)
+ spawn(function()
+  Core.Parent = workspace
+  local Weld = Instance.new("Weld", Core)
+  Weld.Part0 = Core
+  Weld.Part1 = localplayer.Character.LowerTorso
+  Weld.C0 = CFrame.new(0, 0, 0)
+ end)
+ workspace:WaitForChild("Core")
+ local torso = workspace.Core
+ flying = true
+ local speed=10
+ local keys={a=false,d=false,w=false,s=false}
+ local e1
+ local e2
+ local function start()
+ local pos = Instance.new("BodyPosition",torso)
+ local gyro = Instance.new("BodyGyro",torso)
+ pos.Name="EPIXPOS"
+ pos.maxForce = Vector3.new(math.huge, math.huge, math.huge)
+ pos.position = torso.Position
+ gyro.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+ gyro.cframe = torso.CFrame
+ repeat wait() localplayer.Character.Humanoid.PlatformStand = true
+  local new=gyro.cframe - gyro.cframe.p + pos.position
+  if not keys.w and not keys.s and not keys.a and not keys.d then
+   speed=5
+  end
+  if keys.w then
+   new = new + workspace.CurrentCamera.CoordinateFrame.lookVector * speed
+   speed=speed+0
+  end
+  if keys.s then
+   new = new - workspace.CurrentCamera.CoordinateFrame.lookVector * speed
+   speed=speed+0
+  end
+  if keys.d then
+   new = new * CFrame.new(speed,0,0)
+   speed=speed+0
+  end
+  if keys.a then
+   new = new * CFrame.new(-speed,0,0)
+   speed=speed+0
+  end
+  if speed>10 then
+   speed=5
+  end
+  pos.position=new.p
+  if keys.w then
+   gyro.cframe = workspace.CurrentCamera.CoordinateFrame*CFrame.Angles(-math.rad(speed*0),0,0)
+  elseif keys.s then
+   gyro.cframe = workspace.CurrentCamera.CoordinateFrame*CFrame.Angles(math.rad(speed*0),0,0)
+  else
+   gyro.cframe = workspace.CurrentCamera.CoordinateFrame
+  end
+ until flying == false
+ if gyro then gyro:Destroy() end
+ if pos then pos:Destroy() end
+ flying=false
+ localplayer.Character.Humanoid.PlatformStand=false
+ speed=10
+ end
+ e1=mouse.KeyDown:connect(function(key)
+  if not torso or not torso.Parent then flying=false e1:disconnect() e2:disconnect() return end
+  if key=="w" then
+   keys.w=true
+  elseif key=="s" then
+   keys.s=true
+  elseif key=="a" then
+   keys.a=true
+  elseif key=="d" then
+   keys.d=true
+  elseif key=="x" then
+   if flying==true then
+    flying=false
+   else
+    flying=true
+    start()
+   end
+  end
+ end)
+ e2=mouse.KeyUp:connect(function(key)
+  if key=="w" then
+   keys.w=false
+  elseif key=="s" then
+   keys.s=false
+  elseif key=="a" then
+   keys.a=false
+  elseif key=="d" then
+   keys.d=false
+  end
+ end)
+ start()
+end})
+
+MiscMoveSettings:toggle({name = "Antislow", def = false, callback = function(Boolean)
+ PuppySettings.Misc.Antislow = Boolean 
+end})
+
+-- MiscToolSettings
+MiscToolSettings:button({name = "ForceField Gun (hold gun)", callback = function()
+ Game.GetService(game, "Players").LocalPlayer.Character:FindFirstChildOfClass("Tool").Default.Material = Enum.Material.ForceField
+end})
+
+-- Misc Char
+MiscCharSettings:button({name = "Nil Char", callback = function()
+ NilBody()
+end})
+
+MiscNorSettings:toggle({name = "AutoClicker", def = false, callback = function(Boolean)
+ PuppySettings.AutoClicker.Enabled = Boolean 
+end})
+
+MiscNorSettings:keybind({name = "AutoClicker Keybind", def = Enum.KeyCode.B, callback = function(Key)
+ PuppySettings.AutoClicker.Keybind = Key
+end})
+
+AimingTab:openpage()
 
 -- Init --
 
@@ -576,8 +549,6 @@ local AimlockTarget;
 local OldPre;
 
 getgenv().GetNearestTarget = function()
-    if not IsAlive(LocalPlayer) then return end
-
     local players = {}
     local PLAYER_HOLD  = {}
     local DISTANCES = {}
@@ -1102,45 +1073,4 @@ game:GetService("RunService").Heartbeat:Connect(function()
         mouse1click() 
         wait(0.001)
     end -- auto clciker
-end)
-
-function SafeCallback(callback, ...)
-    local success, result = pcall(callback, ...)
-    if not success then
-        warn("[SPICE ERROR] Callback failed: " .. result) 
-    end
-    return success
-end
-
-local function IsAlive(Player)
-    return pcall(function()
-        return Player and Player.Character and 
-               Player.Character:FindFirstChild("Humanoid") and
-               Player.Character:FindFirstChild("HumanoidRootPart") and
-               Player.Character.Humanoid.Health > 0
-    end)
-end
-
-local function GetPingPrediction()
-    local success, ping = pcall(function()
-        return game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
-    end)
-    
-    if not success then
-        return 0.165 -- Default prediction
-    end
-    
-    -- ...existing ping prediction code...
-end
-
-game:GetService("Players").PlayerRemoving:Connect(function(player)
-    if player == LocalPlayer then
-        -- Cleanup resources
-        if SilentAimFOV then
-            SilentAimFOV:Remove()
-        end
-        if placemarker then
-            placemarker:Destroy() 
-        end
-    end
 end)
