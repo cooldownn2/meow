@@ -145,7 +145,9 @@ local PuppyModule = {
     Instance = {}
 }
 
-local Window = libary:new({name = "SPICE", accent = Color3.fromRGB(244, 95, 115), textsize = 13})
+local UI = require(game:GetService("ReplicatedStorage"):WaitForChild("UI"))
+
+local Window = UI.new({title = "SPICE", accent = Color3.fromRGB(244, 95, 115), size = UDim2.new(0, 500, 0, 600)})
 local AimingTab = Window:page({name = "Legit"})
 local RageTab = Window:page({name = "Rage"})
 local VisualTab = Window:page({name = "Visauls"})
