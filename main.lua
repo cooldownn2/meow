@@ -1,11 +1,27 @@
 local success, result = pcall(function()
+    -- Wait for HTTP request and handle errors
     local loaderSource = game:HttpGet('https://raw.githubusercontent.com/cooldownn2/meow/refs/heads/main/loader.lua')
-    local loader = loadstring(loaderSource)()
-    assert(loader, "Loader failed to load")
-    assert(type(loader.Init) == "function", "Loader missing Init function")
-    
+    if not loaderSource then
+        error("Failed to fetch loader source")
+    end
+
+    -- Load the source and execute it
+    local loaderFunc = loadstring(loaderSource)
+    if not loaderFunc then
+        error("Failed to compile loader source")
+    end
+
+    -- Execute the loader function
+    local loader = loaderFunc()
+    if not loader then
+        error("Loader returned nil")
+    end
+
+    -- Initialize the library
     local library = loader.Init()
-    assert(library, "Library failed to initialize")
+    if not library then
+        error("Library initialization failed")
+    end
     
     return library
 end)
