@@ -41,31 +41,64 @@ function loader:init()
         end
     end
     
-    -- Execute in specific order
-    local success, utils = pcall(function() return loadstring(files.utils)() end)
+    -- Execute files with proper environment setup
+    local env = getfenv()
+    env.require = function(module)
+        if module == "utils" then
+            return self.utils
+        elseif module == "config" then
+            return self.config
+        elseif module == "tabs" then
+            return self.tabs
+        end
+    end
+    
+    -- Load modules in order
+    local success, utils = pcall(function() 
+        local fn = loadstring(files.utils)
+        setfenv(fn, env)
+        return fn()
+    end)
     if not success then return log("Utils execution failed: " .. tostring(utils)) end
+    self.utils = utils
     
-    local success, ui = pcall(function() return loadstring(files.ui)() end)
+    local success, ui = pcall(function() 
+        local fn = loadstring(files.ui)
+        setfenv(fn, env)
+        return fn()
+    end)
     if not success then return log("UI execution failed: " .. tostring(ui)) end
+    self.ui = ui
     
-    local success, config = pcall(function() return loadstring(files.config)() end)
+    local success, config = pcall(function()
+        local fn = loadstring(files.config)
+        setfenv(fn, env)
+        return fn()
+    end)
     if not success then return log("Config execution failed: " .. tostring(config)) end
+    self.config = config
     
-    local success, tabs = pcall(function() return loadstring(files.tabs)() end)
+    local success, tabs = pcall(function()
+        local fn = loadstring(files.tabs)
+        setfenv(fn, env)
+        return fn()
+    end)
     if not success then return log("Tabs execution failed: " .. tostring(tabs)) end
+    self.tabs = tabs
     
-    -- Store references
-    _G.Library = ui
-    ui.config = config
-    ui.tabs = tabs
-    ui.utils = utils
+    -- Store UI globally
+    _G.Library = self.ui
     
-    -- Initialize in correct order
-    if config then config:init(ui) end
-    if tabs then tabs:init(ui) end
-    if ui.init then ui:init() end
+    -- Initialize modules
+    if self.config then self.config:init(self.ui) end
+    if self.tabs then self.tabs:init(self.ui) end
+    if self.ui then
+        self.ui.config = self.config
+        self.ui.tabs = self.tabs
+        self.ui.utils = self.utils
+    end
     
-    return ui
+    return self.ui
 end
 
 return loader
