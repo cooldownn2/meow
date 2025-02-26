@@ -23,13 +23,15 @@ local function loadFile(name, url)
     
     if success then
         log(name .. " content loaded")
-        local success2, result = pcall(loadstring(content))
-        
-        if success2 then
-            log(name .. " executed successfully")
-            return result
-        else
-            log(name .. " execution failed: " .. tostring(result))
+        local func = loadstring(content)
+        if func then
+            local success2, result = pcall(func)
+            if success2 then
+                log(name .. " executed successfully")
+                return result
+            else
+                log(name .. " execution failed: " .. tostring(result))
+            end
         end
     else
         log(name .. " failed to load: " .. tostring(content))
@@ -38,25 +40,22 @@ local function loadFile(name, url)
 end
 
 function loader:init()
-    -- Load UI first since it contains core functionality
-    self.ui = loadFile("UI", urls.ui)
-    if not self.ui then return end
-
-    -- Load other modules
+    -- Load modules in order
     self.utils = loadFile("Utils", urls.utils)
     self.config = loadFile("Config", urls.config)
     self.tabs = loadFile("Tabs", urls.tabs)
-
-    -- Initialize the UI library first
-    if type(self.ui) == "table" then
-        self.ui:init()
+    
+    -- Load and initialize UI last since it depends on other modules
+    local ui = loadFile("UI", urls.ui)
+    if ui then
+        _G.Library = ui -- Store UI library globally to persist
+        
+        -- Initialize modules with UI reference
+        if self.config then self.config:init(ui) end
+        if self.tabs then self.tabs:init(ui) end
+        
+        return ui
     end
-
-    -- Initialize other modules after UI is ready
-    if self.config then self.config:init(self.ui) end
-    if self.tabs then self.tabs:init(self.ui) end
-
-    return self.ui
 end
 
 return loader
