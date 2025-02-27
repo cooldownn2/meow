@@ -20,7 +20,7 @@ local function Image(ID, Button)
 	NewImage.Image = ID;
 	NewImage.BackgroundTransparency = 1;
 	return NewImage;
-endd
+end
 
 local function Round2px()
 	local NewImage = Image("http://www.roblox.com/asset/?id=5761488251");
